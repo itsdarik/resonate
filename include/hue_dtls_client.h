@@ -1,14 +1,13 @@
 #pragma once
 
-#include <openssl/ssl.h> // SSL_CTX, SSL
 #include "hue_stream_message.h"
+#include <openssl/ssl.h> // SSL_CTX, SSL
 
 typedef struct hue_dtls_context hue_dtls_context;
-struct hue_dtls_context
-{
-    SSL_CTX *ssl_ctx;
-    SSL *ssl;
-    int socket;
+struct hue_dtls_context {
+  SSL_CTX *ssl_ctx;
+  SSL *ssl;
+  int socket;
 };
 
 /**
@@ -45,4 +44,5 @@ int hue_dtls_connect(hue_dtls_context *context);
  *
  * @return 0 on success, -1 on failure.
  */
-int hue_dtls_send_message(hue_dtls_context *context, const hue_stream_message *message);
+int hue_dtls_send_message(hue_dtls_context *context,
+                          const hue_stream_message *message);
