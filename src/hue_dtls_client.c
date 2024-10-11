@@ -30,10 +30,12 @@ void hue_dtls_context_free(hue_dtls_context *context) {
       SSL_free(context->ssl);
       context->ssl = NULL;
     }
+
     if (context->ssl_ctx) {
       SSL_CTX_free(context->ssl_ctx);
       context->ssl_ctx = NULL;
     }
+
     context->socket = -1;
     free(context);
   }
