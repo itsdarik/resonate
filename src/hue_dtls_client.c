@@ -1,16 +1,17 @@
 #include "hue_dtls_client.h"
 #include <netinet/in.h> // struct sockaddr_in
-#include <stddef.h> // NULL, size_t
-#include <stdio.h>  // perror, sscanf
-#include <stdlib.h> // getenv, malloc, free
-#include <string.h> // strncpy, strlen
+#include <stddef.h>     // NULL, size_t
+#include <stdio.h>      // perror, sscanf
+#include <stdlib.h>     // getenv, malloc, free
+#include <string.h>     // strncpy, strlen
 #include <sys/socket.h> // socket, connect
-#include <unistd.h> // close
+#include <unistd.h>     // close
 
 #define MAX_PORT_NUMBER 65535
 #define PSK_HEX_EXPECTED_LEN 32
 
-static int socket_connect(hue_dtls_context *context, const char *bridge_ip, const char *bridge_port) {
+static int socket_connect(hue_dtls_context *context, const char *bridge_ip,
+                          const char *bridge_port) {
   if (!context) {
     fprintf(stderr, "context is null\n");
     return -1;
@@ -128,7 +129,8 @@ void hue_dtls_context_free(hue_dtls_context *context) {
   }
 }
 
-int hue_dtls_connect(hue_dtls_context *context, const char *bridge_ip, const char *bridge_port) {
+int hue_dtls_connect(hue_dtls_context *context, const char *bridge_ip,
+                     const char *bridge_port) {
   if (!context || !context->ssl_ctx) {
     fprintf(stderr, "context or context->ssl_ctx is null\n");
     return -1;
