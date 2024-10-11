@@ -1,10 +1,14 @@
 #pragma once
 
+#include <openssl/ssl.h> // SSL_CTX, SSL
 #include "hue_stream_message.h"
 
 typedef struct hue_dtls_context hue_dtls_context;
 struct hue_dtls_context
 {
+    SSL_CTX *ssl_ctx;
+    SSL *ssl;
+    int socket;
 };
 
 /**
