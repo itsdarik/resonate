@@ -10,8 +10,8 @@
 #define MAX_PORT_NUMBER 65535
 #define PSK_HEX_EXPECTED_LEN 32
 
-static int socket_connect(hue_dtls_context *context, const char *bridge_ip,
-                          const char *bridge_port) {
+static int udp_socket_connect(hue_dtls_context *context, const char *bridge_ip,
+                              const char *bridge_port) {
   if (!context) {
     fprintf(stderr, "context is null\n");
     return -1;
@@ -148,8 +148,8 @@ int hue_dtls_connect(hue_dtls_context *context, const char *bridge_ip,
     return -1;
   }
 
-  if (socket_connect(context, bridge_ip, bridge_port)) {
-    fprintf(stderr, "socket_connect() failed\n");
+  if (udp_socket_connect(context, bridge_ip, bridge_port)) {
+    fprintf(stderr, "udp_socket_connect() failed\n");
     SSL_free(context->ssl);
     context->ssl = NULL;
     return -1;
