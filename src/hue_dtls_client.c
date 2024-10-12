@@ -1,3 +1,8 @@
+/**
+ * This implementation is based on the Mbed TLS DTLS client example
+ * (dtls_client.c), adapted to use a PSK instead of a certificate.
+ */
+
 #include "hue_dtls_client.h"
 
 #include <stddef.h> // NULL, size_t
