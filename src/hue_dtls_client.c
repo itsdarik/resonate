@@ -1,4 +1,5 @@
 #include "hue_dtls_client.h"
+#include <arpa/inet.h>  // inet_pton
 #include <errno.h>      // errno
 #include <netinet/in.h> // struct sockaddr_in
 #include <stddef.h>     // NULL, size_t
@@ -8,36 +9,13 @@
 #include <sys/socket.h> // socket, connect
 #include <unistd.h>     // close
 
-#define MAX_PORT_NUMBER 65535
+#define HUE_BRIDGE_DTLS_PORT 2100
 #define PSK_HEX_EXPECTED_LEN 32
 
-static long bridge_port_to_long(const char *bridge_port) {
-  errno = 0;
-  char *endptr = NULL;
-  const long port = strtol(bridge_port, &endptr, 10);
-
-  if (errno) {
-    perror("strtol");
-    return -1;
-  }
-
-  if (port <= 0 || port > MAX_PORT_NUMBER || *endptr != '\0') {
-    fprintf(stderr, "Invalid port number: %s\n", bridge_port);
-    return -1;
-  }
-
-  return port;
-}
-
-static int udp_socket_connect(hue_dtls_context *context, const char *bridge_ip,
-                              const char *bridge_port) {
+static int udp_socket_connect(hue_dtls_context *context,
+                              const char *bridge_ip) {
   if (!context) {
     fprintf(stderr, "context is null\n");
-    return -1;
-  }
-
-  const long port = bridge_port_to_long(bridge_port);
-  if (port == -1) {
     return -1;
   }
 
@@ -50,7 +28,7 @@ static int udp_socket_connect(hue_dtls_context *context, const char *bridge_ip,
 
   struct sockaddr_in addr = {0};
   addr.sin_family = AF_INET;
-  addr.sin_port = htons(port);
+  addr.sin_port = htons(HUE_BRIDGE_DTLS_PORT);
   if (inet_pton(AF_INET, bridge_ip, &addr.sin_addr) != 1) {
     perror("inet_pton");
     close(context->socket);
@@ -147,14 +125,9 @@ void hue_dtls_context_free(hue_dtls_context *context) {
   }
 }
 
-int hue_dtls_connect(hue_dtls_context *context, const char *bridge_ip,
-                     const char *bridge_port) {
+int hue_dtls_connect(hue_dtls_context *context, const char *bridge_ip) {
   if (!context || !context->ssl_ctx) {
     fprintf(stderr, "context or context->ssl_ctx is null\n");
-    return -1;
-  }
-
-  if (bridge_port_to_long(bridge_port) == -1) {
     return -1;
   }
 
@@ -164,7 +137,7 @@ int hue_dtls_connect(hue_dtls_context *context, const char *bridge_ip,
     return -1;
   }
 
-  if (udp_socket_connect(context, bridge_ip, bridge_port)) {
+  if (udp_socket_connect(context, bridge_ip)) {
     fprintf(stderr, "udp_socket_connect() failed\n");
     SSL_free(context->ssl);
     context->ssl = NULL;

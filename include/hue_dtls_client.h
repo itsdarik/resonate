@@ -31,10 +31,11 @@ void hue_dtls_context_free(hue_dtls_context *context);
  * @ref hue_dtls_send_message() if and only if this function returns 0.
  *
  * @param context The DTLS context.
+ * @param bridge_ip The IP address of the Hue bridge.
  *
  * @return 0 on success, -1 on failure.
  */
-int hue_dtls_connect(hue_dtls_context *context);
+int hue_dtls_connect(hue_dtls_context *context, const char *bridge_ip);
 
 /**
  * @brief Send a message to the Hue bridge over DTLS.
