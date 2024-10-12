@@ -182,5 +182,33 @@ int hue_dtls_send_message(hue_dtls_context *context,
     return -1;
   }
 
+  uint8_t *buffer = NULL;
+  size_t buffer_size = 0;
+  hue_stream_message_serialize(message, channel_count, &buffer, &buffer_size);
+  if (!buffer || buffer_size == 0) {
+    fprintf(stderr, "hue_stream_message_serialize() failed\n");
+    return -1;
+  }
+
+  size_t written = 0;
+  while (written < buffer_size) {
+    const int ret = mbedtls_ssl_write(&context->ssl, buffer + written,
+                                      buffer_size - written);
+
+    if (ret == MBEDTLS_ERR_SSL_WANT_READ || ret == MBEDTLS_ERR_SSL_WANT_WRITE) {
+      continue;
+    }
+
+    if (ret <= 0) {
+      fprintf(stderr, "mbedtls_ssl_write() failed: -0x%x\n",
+              (unsigned int)-ret);
+      free(buffer);
+      return -1;
+    }
+
+    written += ret;
+  }
+
+  free(buffer);
   return 0;
 }
