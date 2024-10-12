@@ -1,18 +1,18 @@
 #pragma once
 
 #include "hue_stream_message.h"
-#include "mbedtls/ssl.h"
-#include "mbedtls/net_sockets.h"
-#include "mbedtls/entropy.h"
 #include "mbedtls/ctr_drbg.h"
+#include "mbedtls/entropy.h"
 #include "mbedtls/error.h"
+#include "mbedtls/net_sockets.h"
+#include "mbedtls/ssl.h"
 
 typedef struct {
-    mbedtls_ssl_context ssl;
-    mbedtls_ssl_config conf;
-    mbedtls_net_context net;
-    mbedtls_entropy_context entropy;
-    mbedtls_ctr_drbg_context ctr_drbg;
+  mbedtls_ssl_context ssl;
+  mbedtls_ssl_config conf;
+  mbedtls_net_context net;
+  mbedtls_entropy_context entropy;
+  mbedtls_ctr_drbg_context ctr_drbg;
 } hue_dtls_context;
 
 /**
