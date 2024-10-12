@@ -89,15 +89,15 @@ static void display_menu() {
     scanf("%d", &choice);
 
     switch (choice) {
-      case 1:
-        break;
-      case 2:
-        break;
-      case 3:
-        return;
-      default:
-        printf("Invalid choice. Please try again.\n");
-        break;
+    case 1:
+      break;
+    case 2:
+      break;
+    case 3:
+      return;
+    default:
+      printf("Invalid choice. Please try again.\n");
+      break;
     }
   }
 }
