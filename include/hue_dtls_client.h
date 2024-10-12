@@ -13,6 +13,7 @@ struct hue_dtls_context {
   mbedtls_ssl_config conf;
   mbedtls_ctr_drbg_context ctr_drbg;
   mbedtls_entropy_context entropy;
+  int ciphersuites[2];
 };
 
 /**
