@@ -1,16 +1,21 @@
 #include "hue_dtls_client.h"
 #include <stdio.h>
 
-#define HUE_BRIDGE_IP_ADDRESS "192.168.50.24"
+int main(int argc, char *argv[]) {
+  if (argc != 2) {
+    fprintf(stderr, "Usage: %s <Hue bridge IP address>\n", argv[0]);
+    return 1;
+  }
 
-int main(void) {
+  const char *bridge_ip = argv[1];
+
   hue_dtls_context *context = hue_dtls_context_create();
   if (!context) {
     fprintf(stderr, "Failed to create DTLS context\n");
     return 1;
   }
 
-  if (hue_dtls_connect(context, HUE_BRIDGE_IP_ADDRESS)) {
+  if (hue_dtls_connect(context, bridge_ip)) {
     fprintf(stderr, "Failed to connect to Hue bridge\n");
     hue_dtls_context_free(context);
     return 1;
