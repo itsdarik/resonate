@@ -1,6 +1,7 @@
 #include "hue_dtls_client.h"
 #include <stdbool.h> // bool
 #include <stdio.h>   // fprintf, printf
+#include <stdlib.h>  // free
 #include <unistd.h>  // sleep
 
 #define CHANNEL_COUNT 10
@@ -25,7 +26,7 @@ void *stream(void *arg) {
   const stream_thread_args *args = (stream_thread_args *)arg;
 
   while (streaming) {
-    const hue_stream_message *message = hue_stream_message_create(
+    hue_stream_message *message = hue_stream_message_create(
         current_frame, CHANNEL_COUNT, ENTERTAINMENT_CONFIG_ID);
     if (!message) {
       fprintf(stderr, "hue_stream_message_create() failed\n");
@@ -37,7 +38,7 @@ void *stream(void *arg) {
       return NULL;
     }
 
-    hue_stream_message_free(message);
+    free(message);
   }
 
   return NULL;
