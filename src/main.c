@@ -15,11 +15,15 @@ int main(int argc, char *argv[]) {
     return 1;
   }
 
+  printf("Connecting to Hue bridge\n");
+
   if (hue_dtls_connect(context, bridge_ip)) {
     fprintf(stderr, "Failed to connect to Hue bridge\n");
     hue_dtls_context_free(context);
     return 1;
   }
+
+  printf("Connected to Hue bridge\n");
 
   hue_dtls_context_free(context);
   return 0;
