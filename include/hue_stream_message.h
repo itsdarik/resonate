@@ -31,6 +31,8 @@ struct hue_stream_message {
 /**
  * @brief Serialize a Hue stream message.
  *
+ * The user is responsible for freeing the buffer.
+ *
  * @param[in] message The message to serialize.
  * @param[in] channel_count The number of channels to serialize. The first
  * channel_count channels in the message data will be serialized.
