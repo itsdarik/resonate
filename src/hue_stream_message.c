@@ -2,13 +2,14 @@
 
 #include <stdio.h>  // fprintf, perror
 #include <stdlib.h> // malloc
-#include <string.h> // memcpy
+#include <string.h> // memcpy, memset
 
 hue_stream_message *
 hue_stream_message_create(const hue_stream_message_data *data,
-                          int channel_count) {
-  if (!data) {
-    fprintf(stderr, "data is null\n");
+                          int channel_count,
+                          const char *entertainment_config_id) {
+  if (!data || !entertainment_config_id) {
+    fprintf(stderr, "data or entertainment_config_id is null\n");
     return NULL;
   }
 
@@ -16,6 +17,41 @@ hue_stream_message_create(const hue_stream_message_data *data,
     fprintf(stderr, "channel_count is out of range\n");
     return NULL;
   }
+
+  const size_t entertainment_config_id_len = strlen(entertainment_config_id);
+  if (entertainment_config_id_len !=
+      HUE_STREAM_MESSAGE_ENTERTAINMENT_CONFIG_ID_SIZE) {
+    fprintf(
+        stderr,
+        "entertainment_config_id length (%zu) is not the correct length (%d)\n",
+        entertainment_config_id_len,
+        HUE_STREAM_MESSAGE_ENTERTAINMENT_CONFIG_ID_SIZE);
+    return NULL;
+  }
+
+  hue_stream_message *message = malloc(sizeof(hue_stream_message));
+  if (!message) {
+    perror("malloc");
+    return NULL;
+  }
+
+  memset(message, 0, sizeof(hue_stream_message));
+
+  memcpy(message->protocol_name, "HueStream", sizeof(message->protocol_name));
+
+  message->version[0] = 0x02;
+  message->version[1] = 0x00;
+
+  message->color_space = HUE_STREAM_MESSAGE_COLOR_SPACE_XY_BRIGHTNESS;
+
+  memcpy(message->entertainment_config_id, entertainment_config_id,
+         entertainment_config_id_len);
+
+  for (int i = 0; i < channel_count; i++) {
+    memcpy(&message->data[i], &data[i], sizeof(hue_stream_message_data));
+  }
+
+  return message;
 }
 
 void hue_stream_message_serialize(const hue_stream_message *message,

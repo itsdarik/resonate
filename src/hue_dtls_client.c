@@ -26,7 +26,7 @@ static int set_psk(mbedtls_ssl_config *conf) {
 
   const size_t psk_hex_len = strlen(psk_hex);
   if (psk_hex_len != PSK_HEX_EXPECTED_LEN) {
-    fprintf(stderr, "PSK hex length (%zu) is not the expected length (%d)\n",
+    fprintf(stderr, "PSK hex length (%zu) is not the correct length (%d)\n",
             psk_hex_len, PSK_HEX_EXPECTED_LEN);
     return -1;
   }

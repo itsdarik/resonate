@@ -11,6 +11,9 @@
 #define HUE_STREAM_MESSAGE_MAX_CHANNELS 20
 #define HUE_STREAM_MESSAGE_COLOR_VALUE_ELEMENTS 3
 
+#define HUE_STREAM_MESSAGE_COLOR_SPACE_RGB 0x00
+#define HUE_STREAM_MESSAGE_COLOR_SPACE_XY_BRIGHTNESS 0x01
+
 typedef struct hue_stream_message_data hue_stream_message_data;
 struct hue_stream_message_data {
   uint8_t channel_id;
@@ -35,14 +38,16 @@ struct hue_stream_message {
  *
  * The user is responsible for freeing the message.
  *
- * @param[in] data The message data array.
+ * @param[in] data The message data array in xy + brightness color space.
  * @param[in] channel_count The length of the data array.
+ * @param[in] entertainment_config_id The entertainment configuration ID.
  *
  * @return A new Hue stream message, or NULL on failure.
  */
 hue_stream_message *
 hue_stream_message_create(const hue_stream_message_data *data,
-                          int channel_count);
+                          int channel_count,
+                          const char *entertainment_config_id);
 
 /**
  * @brief Serialize a Hue stream message.
