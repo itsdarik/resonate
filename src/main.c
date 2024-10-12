@@ -1,11 +1,12 @@
+#include "animation.h"
 #include "hue_dtls_client.h"
 #include <pthread.h>
-#include <stdbool.h> // bool
-#include <stdio.h>   // fprintf, printf, scanf
-#include <stdlib.h>  // free
-#include <string.h>  // memcpy
-#include <time.h>    // nanosleep
-#include <unistd.h>  // sleep
+#include <signal.h>
+#include <stdbool.h>
+#include <stdio.h>  // fprintf, printf, scanf
+#include <stdlib.h> // free
+#include <string.h> // memcpy
+#include <time.h>   // nanosleep
 
 #define CHANNEL_COUNT 10
 #define ENTERTAINMENT_CONFIG_ID "2d4cb563-4244-4bfc-9bb2-f5a08068df84"
@@ -13,10 +14,10 @@
 #define FRAMES_PER_SECOND 60
 #define NANOSECONDS_PER_FRAME (1000000000L / FRAMES_PER_SECOND)
 
-bool streaming = true;
-
 pthread_mutex_t current_frame_mutex = {0};
 hue_stream_message_data current_frame[CHANNEL_COUNT] = {0};
+
+bool streaming = true;
 
 typedef struct stream_thread_args stream_thread_args;
 struct stream_thread_args {
@@ -76,6 +77,48 @@ static hue_dtls_context *connect_to_bridge(const char *bridge_ip) {
   return context;
 }
 
+static void initialize_current_frame() {
+  for (int i = 0; i < CHANNEL_COUNT; i++) {
+    current_frame[i].channel_id = i;
+    current_frame[i].color_value[0] = 0;
+    current_frame[i].color_value[1] = 0;
+    current_frame[i].color_value[2] = 0;
+  }
+}
+
+volatile sig_atomic_t animating = true;
+
+static void handle_signal(int signal) {
+  if (signal == SIGINT) {
+    animating = false;
+  }
+}
+
+static void animate(int animation) {
+  animating = true;
+  while (animating) {
+    switch (animation) {
+    case ANIMATION_THX_DEEP_NOTE:
+      animation_thx_deep_note();
+      break;
+    case ANIMATION_SPIDER_MAN_INTO_THE_SPIDER_VERSE:
+      animation_spider_man_into_the_spider_verse();
+      break;
+    default:
+      fprintf(stderr, "Invalid animation\n");
+      animating = false;
+      break;
+    }
+
+    // Animate at the specified frame rate.
+    struct timespec ts = {.tv_sec = 0, .tv_nsec = NANOSECONDS_PER_FRAME};
+    nanosleep(&ts, NULL);
+  }
+
+  // Turn lights off after the animation ends or is interrupted.
+  initialize_current_frame();
+}
+
 static void display_menu() {
   while (true) {
     printf("--------------------------------\n");
@@ -90,8 +133,10 @@ static void display_menu() {
 
     switch (choice) {
     case 1:
+      animate(ANIMATION_THX_DEEP_NOTE);
       break;
     case 2:
+      animate(ANIMATION_SPIDER_MAN_INTO_THE_SPIDER_VERSE);
       break;
     case 3:
       return;
@@ -120,12 +165,7 @@ int main(int argc, char *argv[]) {
   printf("Connected to Hue bridge\n");
 
   // Initialize the current frame.
-  for (int i = 0; i < CHANNEL_COUNT; i++) {
-    current_frame[i].channel_id = i;
-    current_frame[i].color_value[0] = 0;
-    current_frame[i].color_value[1] = 0;
-    current_frame[i].color_value[2] = 0;
-  }
+  initialize_current_frame();
 
   // Initialize the current frame mutex.
   if (pthread_mutex_init(&current_frame_mutex, NULL)) {
@@ -144,6 +184,9 @@ int main(int argc, char *argv[]) {
     return 1;
   }
 
+  // Handle Ctrl+C to stop animating.
+  signal(SIGINT, handle_signal);
+
   // Display animation menu.
   display_menu();
 
@@ -158,7 +201,5 @@ int main(int argc, char *argv[]) {
 
 /*
  * TODO:
- * - Implement animations on the main thread at 60 Hz.
- * - Ctrl+C to stop animation, Ctrl+D to exit menu.
  * - Curl to send start header.
  */
