@@ -170,13 +170,17 @@ int hue_dtls_connect(hue_dtls_context *context, const char *bridge_ip) {
 }
 
 int hue_dtls_send_message(hue_dtls_context *context,
-                          const hue_stream_message *message) {
+                          const hue_stream_message *message,
+                          int channel_count) {
   if (!context || !message) {
     fprintf(stderr, "context or message is null\n");
     return -1;
   }
 
-  // Implement message sending logic here
+  if (channel_count < 0 || channel_count > HUE_STREAM_MESSAGE_MAX_CHANNELS) {
+    fprintf(stderr, "channel_count is out of range\n");
+    return -1;
+  }
 
   return 0;
 }

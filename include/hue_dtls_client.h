@@ -54,8 +54,10 @@ int hue_dtls_connect(hue_dtls_context *context, const char *bridge_ip);
  *
  * @param context The DTLS context.
  * @param message The Hue stream message to send.
+ * @param channel_count The number of channels to send. The first channel_count
+ * channels in the message data will be sent.
  *
  * @return 0 on success, -1 on failure.
  */
 int hue_dtls_send_message(hue_dtls_context *context,
-                          const hue_stream_message *message);
+                          const hue_stream_message *message, int channel_count);
