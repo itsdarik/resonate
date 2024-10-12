@@ -20,10 +20,8 @@ target_compile_options(resonate PRIVATE
     -Werror
 )
 
-set (MbedT)
-
-set(MBEDTLS_INCLUDE_DIRS "/usr/include/mbedtls")
-set(MBEDTLS_LIBRARIES "/usr/lib/x86_64-linux-gnu/libmbedtls.so" "/usr/lib/x86_64-linux-gnu/libmbedx509.so" "/usr/lib/x86_64-linux-gnu/libmbedcrypto.so")
-
-target_include_directories(resonate PRIVATE ${MBEDTLS_INCLUDE_DIRS})
-target_link_libraries(resonate PRIVATE ${MBEDTLS_LIBRARIES})
+target_include_directories(resonate PRIVATE "/usr/include/mbedtls")
+target_link_libraries(resonate PRIVATE
+    "/usr/lib/x86_64-linux-gnu/libmbedtls.so"
+    "/usr/lib/x86_64-linux-gnu/libmbedcrypto.so"
+)
