@@ -79,6 +79,11 @@ hue_dtls_context *hue_dtls_context_create(void) {
   mbedtls_ssl_conf_rng(&context->conf, mbedtls_ctr_drbg_random,
                        &context->ctr_drbg);
 
+  // Limit ciphersuites to the one used by the Hue bridge.
+  context->ciphersuites[0] = HUE_BRIDGE_DTLS_CIPHER;
+  context->ciphersuites[1] = 0;
+  mbedtls_ssl_conf_ciphersuites(&context->conf, context->ciphersuites);
+
   // Set the pre-shared key (PSK).
   if (set_psk(&context->conf)) {
     fprintf(stderr, "set_psk() failed\n");
@@ -94,10 +99,6 @@ hue_dtls_context *hue_dtls_context_create(void) {
   // Set timer callbacks. Required for DTLS.
   mbedtls_ssl_set_timer_cb(&context->ssl, &context->timer,
                            mbedtls_timing_set_delay, mbedtls_timing_get_delay);
-
-  // Limit ciphersuites to the one used by the Hue bridge.
-  context->ciphersuites[0] = HUE_BRIDGE_DTLS_CIPHER;
-  context->ciphersuites[1] = 0;
 
   return context;
 
