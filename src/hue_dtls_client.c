@@ -1,7 +1,5 @@
 #include "hue_dtls_client.h"
 
-#include <mbedtls/timing.h>
-
 #include <stddef.h> // NULL, size_t
 #include <stdio.h>  // perror, sscanf
 #include <stdlib.h> // getenv, malloc, free
@@ -11,38 +9,6 @@
 #define HUE_BRIDGE_DTLS_PORT 2100
 
 #define PSK_HEX_EXPECTED_LEN 32
-
-typedef struct {
-  mbedtls_timing_delay_context timer;
-} dtls_timer_context;
-
-static void timer_set_delay(void *data, uint32_t int_ms, uint32_t fin_ms) {
-  dtls_timer_context *ctx = (dtls_timer_context *)data;
-  mbedtls_timing_set_delay(&ctx->timer, int_ms, fin_ms);
-}
-
-static int timer_get_delay(void *data) {
-  dtls_timer_context *ctx = (dtls_timer_context *)data;
-  return mbedtls_timing_get_delay(&ctx->timer);
-}
-
-static int udp_socket_connect(hue_dtls_context *context,
-                              const char *bridge_ip) {
-  if (!context) {
-    fprintf(stderr, "context is null\n");
-    return -1;
-  }
-
-  mbedtls_net_init(&context->net);
-
-  if (mbedtls_net_connect(&context->net, bridge_ip, "2100",
-                          MBEDTLS_NET_PROTO_UDP) != 0) {
-    fprintf(stderr, "mbedtls_net_connect() failed\n");
-    return -1;
-  }
-
-  return 0;
-}
 
 static int set_psk(mbedtls_ssl_config *conf) {
   const char *psk_identity = getenv("HUE_APPLICATION_ID");
@@ -124,6 +90,10 @@ hue_dtls_context *hue_dtls_context_create(void) {
     goto exit;
   }
 
+  // Set timer callbacks. Required for DTLS.
+  mbedtls_ssl_set_timer_cb(&context->ssl, &context->timer,
+                           mbedtls_timing_set_delay, mbedtls_timing_get_delay);
+
   // Limit ciphersuites to the one used by the Hue bridge.
   context->ciphersuites[0] = HUE_BRIDGE_DTLS_CIPHER;
   context->ciphersuites[1] = 0;
@@ -160,43 +130,33 @@ void hue_dtls_context_free(hue_dtls_context *context) {
   }
 }
 
-void my_debug(void *ctx, int level, const char *file, int line,
-              const char *str) {
-  ((void)level);
-  fprintf((FILE *)ctx, "%s:%04d: %s", file, line, str);
-}
-
 int hue_dtls_connect(hue_dtls_context *context, const char *bridge_ip) {
   if (!context) {
     fprintf(stderr, "context is null\n");
     return -1;
   }
 
-  if (udp_socket_connect(context, bridge_ip) != 0) {
-    fprintf(stderr, "udp_socket_connect() failed\n");
+  // Connect to the Hue bridge over UDP.
+  if (mbedtls_net_connect(&context->server_fd, bridge_ip, HUE_BRIDGE_DTLS_PORT,
+                          MBEDTLS_NET_PROTO_UDP)) {
+    fprintf(stderr, "mbedtls_net_connect() failed\n");
     return -1;
   }
 
-  mbedtls_debug_set_threshold(4); // Set debug level (0-4)
-  mbedtls_ssl_conf_dbg(&context->conf, my_debug, stderr);
-
-  // Set up timer callbacks
-  dtls_timer_context timer_ctx;
-  mbedtls_ssl_set_timer_cb(&context->ssl, &timer_ctx, timer_set_delay,
-                           timer_get_delay);
-
-  mbedtls_ssl_set_bio(&context->ssl, &context->net, mbedtls_net_send,
+  mbedtls_ssl_set_bio(&context->ssl, &context->server_fd, mbedtls_net_send,
                       mbedtls_net_recv, mbedtls_net_recv_timeout);
 
-  int ret;
-  while ((ret = mbedtls_ssl_handshake(&context->ssl)) != 0) {
-    if (ret == MBEDTLS_ERR_SSL_WANT_READ || ret == MBEDTLS_ERR_SSL_WANT_WRITE) {
-      // Non-fatal error, retry the handshake
-      continue;
-    } else {
-      fprintf(stderr, "mbedtls_ssl_handshake() failed: -0x%x\n", -ret);
-      return -1;
-    }
+  // Perform the DTLS handshake.
+  int ret = 0;
+  do {
+    ret = mbedtls_ssl_handshake(&context->ssl);
+  } while (ret == MBEDTLS_ERR_SSL_WANT_READ ||
+           ret == MBEDTLS_ERR_SSL_WANT_WRITE);
+
+  if (ret) {
+    fprintf(stderr, "mbedtls_ssl_handshake() failed: -0x%x\n",
+            (unsigned int)-ret);
+    return -1;
   }
 
   return 0;

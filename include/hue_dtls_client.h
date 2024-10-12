@@ -5,6 +5,7 @@
 #include <mbedtls/entropy.h>
 #include <mbedtls/net_sockets.h>
 #include <mbedtls/ssl.h>
+#include <mbedtls/timing.h>
 
 typedef struct hue_dtls_context hue_dtls_context;
 struct hue_dtls_context {
@@ -13,6 +14,7 @@ struct hue_dtls_context {
   mbedtls_ssl_config conf;
   mbedtls_ctr_drbg_context ctr_drbg;
   mbedtls_entropy_context entropy;
+  mbedtls_timing_delay_context timer;
   int ciphersuites[2];
 };
 
