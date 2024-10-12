@@ -194,5 +194,10 @@ int hue_dtls_connect(hue_dtls_context *context, const char *bridge_ip,
 
 int hue_dtls_send_message(hue_dtls_context *context,
                           const hue_stream_message *message) {
+  if (!context || !context->ssl || !message) {
+    fprintf(stderr, "context, context->ssl, or message is null\n");
+    return -1;
+  }
+
   return 0;
 }
