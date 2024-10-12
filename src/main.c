@@ -150,9 +150,7 @@ int main(int argc, char *argv[]) {
 
 /*
  * TODO:
- * 4. Create a menu to select an animation.
- * 5. Implement the animations on the main thread at 60 Hz.
- * 6. Stop the animation on a Ctrl+C interrupt signal, return to the menu.
- * 7. Quit or Ctrl+D on the menu stops the sender thread and exits the program.
- * 8. Curl to send start header.
+ * - Implement animations on the main thread at 60 Hz.
+ * - Ctrl+C to stop animation, Ctrl+D to exit menu.
+ * - Curl to send start header.
  */
