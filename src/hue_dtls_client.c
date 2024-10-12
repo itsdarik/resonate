@@ -185,7 +185,7 @@ int hue_dtls_send_message(hue_dtls_context *context,
   uint8_t *buffer = NULL;
   size_t buffer_size = 0;
   hue_stream_message_serialize(message, channel_count, &buffer, &buffer_size);
-  if (!buffer || buffer_size == 0) {
+  if (!buffer || buffer_size <= 0) {
     fprintf(stderr, "hue_stream_message_serialize() failed\n");
     return -1;
   }
@@ -199,7 +199,7 @@ int hue_dtls_send_message(hue_dtls_context *context,
       continue;
     }
 
-    if (ret <= 0) {
+    if (ret < 0) {
       fprintf(stderr, "mbedtls_ssl_write() failed: -0x%x\n",
               (unsigned int)-ret);
       free(buffer);
