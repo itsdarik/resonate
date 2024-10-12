@@ -135,7 +135,11 @@ void hue_dtls_context_free(hue_dtls_context *context) {
       context->ssl_ctx = NULL;
     }
 
-    context->socket = -1;
+    if (context->socket != -1) {
+      close(context->socket);
+      context->socket = -1;
+    }
+
     free(context);
   }
 }
