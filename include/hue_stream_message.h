@@ -1,18 +1,20 @@
 #pragma once
 
-#include <stddef.h> // size_t
-#include <stdint.h> // uint8_t
+#include <stdbool.h> // bool
+#include <stddef.h>  // size_t
+#include <stdint.h>  // uint8_t
 
 #define HUE_STREAM_MESSAGE_PROTOCOL_NAME_SIZE 9
 #define HUE_STREAM_MESSAGE_VERSION_SIZE 2
 #define HUE_STREAM_MESSAGE_RESERVED_SIZE 2
 #define HUE_STREAM_MESSAGE_ENTERTAINMENT_CONFIG_ID_SIZE 36
 #define HUE_STREAM_MESSAGE_MAX_CHANNELS 20
+#define HUE_STREAM_MESSAGE_COLOR_VALUE_ELEMENTS 3
 
 typedef struct hue_stream_message_data hue_stream_message_data;
 struct hue_stream_message_data {
   uint8_t channel_id;
-  uint16_t color_value[3];
+  uint16_t color_value[HUE_STREAM_MESSAGE_COLOR_VALUE_ELEMENTS];
 };
 
 typedef struct hue_stream_message hue_stream_message;
@@ -29,6 +31,20 @@ struct hue_stream_message {
 };
 
 /**
+ * @brief Create a new Hue stream message.
+ *
+ * The user is responsible for freeing the message.
+ *
+ * @param[in] data The message data array.
+ * @param[in] channel_count The length of the data array.
+ *
+ * @return A new Hue stream message, or NULL on failure.
+ */
+hue_stream_message *
+hue_stream_message_create(const hue_stream_message_data *data,
+                          int channel_count);
+
+/**
  * @brief Serialize a Hue stream message.
  *
  * The user is responsible for freeing the buffer.
@@ -42,3 +58,12 @@ struct hue_stream_message {
 void hue_stream_message_serialize(const hue_stream_message *message,
                                   int channel_count, uint8_t **buffer,
                                   size_t *buffer_size);
+
+/**
+ * @brief Determine if a channel count is valid.
+ *
+ * @param[in] channel_count The channel count to validate.
+ *
+ * @return true if the channel count is valid, false otherwise.
+ */
+bool hue_stream_message_valid_channel_count(int channel_count);

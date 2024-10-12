@@ -177,7 +177,7 @@ int hue_dtls_send_message(hue_dtls_context *context,
     return -1;
   }
 
-  if (channel_count < 0 || channel_count > HUE_STREAM_MESSAGE_MAX_CHANNELS) {
+  if (!hue_stream_message_valid_channel_count(channel_count)) {
     fprintf(stderr, "channel_count is out of range\n");
     return -1;
   }

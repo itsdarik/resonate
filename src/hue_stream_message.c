@@ -4,6 +4,20 @@
 #include <stdlib.h> // malloc
 #include <string.h> // memcpy
 
+hue_stream_message *
+hue_stream_message_create(const hue_stream_message_data *data,
+                          int channel_count) {
+  if (!data) {
+    fprintf(stderr, "data is null\n");
+    return NULL;
+  }
+
+  if (!hue_stream_message_valid_channel_count(channel_count)) {
+    fprintf(stderr, "channel_count is out of range\n");
+    return NULL;
+  }
+}
+
 void hue_stream_message_serialize(const hue_stream_message *message,
                                   int channel_count, uint8_t **buffer,
                                   size_t *buffer_size) {
@@ -12,7 +26,7 @@ void hue_stream_message_serialize(const hue_stream_message *message,
     return;
   }
 
-  if (channel_count < 0 || channel_count > HUE_STREAM_MESSAGE_MAX_CHANNELS) {
+  if (!hue_stream_message_valid_channel_count(channel_count)) {
     fprintf(stderr, "channel_count is out of range\n");
     return;
   }
@@ -63,4 +77,8 @@ void hue_stream_message_serialize(const hue_stream_message *message,
            sizeof(message->data[i].color_value));
     ptr += sizeof(message->data[i].color_value);
   }
+}
+
+bool hue_stream_message_valid_channel_count(int channel_count) {
+  return channel_count >= 0 && channel_count <= HUE_STREAM_MESSAGE_MAX_CHANNELS;
 }
