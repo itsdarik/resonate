@@ -15,7 +15,7 @@
 
 bool streaming = true;
 
-pthread_mutex_t curent_frame_mutex = {0};
+pthread_mutex_t current_frame_mutex = {0};
 hue_stream_message_data current_frame[CHANNEL_COUNT] = {0};
 
 typedef struct stream_thread_args stream_thread_args;
@@ -29,9 +29,9 @@ void *stream(void *arg) {
   while (streaming) {
     // Copy the current frame to minimize the time the mutex is locked.
     hue_stream_message_data frame_copy[CHANNEL_COUNT] = {0};
-    pthread_mutex_lock(&curent_frame_mutex);
+    pthread_mutex_lock(&current_frame_mutex);
     memcpy(frame_copy, current_frame, sizeof(current_frame));
-    pthread_mutex_unlock(&curent_frame_mutex);
+    pthread_mutex_unlock(&current_frame_mutex);
 
     hue_stream_message *message = hue_stream_message_create(
         frame_copy, CHANNEL_COUNT, ENTERTAINMENT_CONFIG_ID);
@@ -128,7 +128,7 @@ int main(int argc, char *argv[]) {
   }
 
   // Initialize the current frame mutex.
-  if (pthread_mutex_init(&curent_frame_mutex, NULL)) {
+  if (pthread_mutex_init(&current_frame_mutex, NULL)) {
     fprintf(stderr, "pthread_mutext_init() failed\n");
     hue_dtls_context_free(context);
     return 1;
@@ -139,7 +139,7 @@ int main(int argc, char *argv[]) {
   stream_thread_args args = {context};
   if (pthread_create(&stream_thread, NULL, stream, &args)) {
     fprintf(stderr, "pthread_create() failed\n");
-    pthread_mutex_destroy(&curent_frame_mutex);
+    pthread_mutex_destroy(&current_frame_mutex);
     hue_dtls_context_free(context);
     return 1;
   }
@@ -151,7 +151,7 @@ int main(int argc, char *argv[]) {
   streaming = false;
   pthread_join(stream_thread, NULL);
 
-  pthread_mutex_destroy(&curent_frame_mutex);
+  pthread_mutex_destroy(&current_frame_mutex);
   hue_dtls_context_free(context);
   return 0;
 }
