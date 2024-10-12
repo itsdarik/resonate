@@ -26,6 +26,7 @@ static int set_psk(mbedtls_ssl_config *conf) {
     return -1;
   }
 
+  // Convert the PSK hex string to binary.
   unsigned char psk[psk_hex_len / 2];
   for (size_t i = 0; i < psk_hex_len / 2; i++) {
     if (sscanf(psk_hex + 2 * i, "%2hhx", &psk[i]) != 1) {
