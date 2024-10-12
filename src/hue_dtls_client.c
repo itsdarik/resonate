@@ -2,11 +2,10 @@
 
 #include <mbedtls/timing.h>
 
-#include <errno.h>  // errno
 #include <stddef.h> // NULL, size_t
 #include <stdio.h>  // perror, sscanf
 #include <stdlib.h> // getenv, malloc, free
-#include <string.h> // strncpy, strlen
+#include <string.h> // strlen
 
 #define HUE_BRIDGE_DTLS_CIPHER MBEDTLS_TLS_PSK_WITH_AES_128_GCM_SHA256
 #define HUE_BRIDGE_DTLS_PORT 2100
