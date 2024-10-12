@@ -9,6 +9,7 @@
 #include <sys/socket.h> // socket, connect
 #include <unistd.h>     // close
 
+#define HUE_BRIDGE_DTLS_CIPHER "PSK-AES128-GCM-SHA256"
 #define HUE_BRIDGE_DTLS_PORT 2100
 #define PSK_HEX_EXPECTED_LEN 32
 
@@ -51,6 +52,10 @@ static unsigned int psk_client_callback(SSL *ssl, const char *hint,
                                         unsigned int max_identity_len,
                                         unsigned char *psk,
                                         unsigned int max_psk_len) {
+  // Suppress unused parameter warnings.
+  (void)ssl;
+  (void)hint;
+
   const char *psk_identity = getenv("HUE_APPLICATION_ID");
   const char *psk_hex = getenv("HUE_CLIENTKEY");
 
@@ -98,6 +103,16 @@ hue_dtls_context *hue_dtls_context_create(void) {
   context->ssl_ctx = SSL_CTX_new(DTLS_client_method());
   if (!context->ssl_ctx) {
     fprintf(stderr, "SSL_CTX_new() failed\n");
+    free(context);
+    return NULL;
+  }
+
+  SSL_CTX_set_psk_client_callback(context->ssl_ctx, psk_client_callback);
+
+  if (SSL_CTX_set_cipher_list(context->ssl_ctx, HUE_BRIDGE_DTLS_CIPHER) != 1) {
+    fprintf(stderr, "SSL_CTX_set_cipher_list() failed\n");
+    SSL_CTX_free(context->ssl_ctx);
+    context->ssl_ctx = NULL;
     free(context);
     return NULL;
   }
