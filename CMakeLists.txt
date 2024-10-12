@@ -19,3 +19,7 @@ target_compile_options(resonate PRIVATE
     -Wextra
     -Werror
 )
+
+find_package(OpenSSL REQUIRED)
+
+target_link_libraries(resonate PRIVATE OpenSSL::SSL)
