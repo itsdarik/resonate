@@ -9,187 +9,172 @@
 #include <sys/socket.h> // socket, connect
 #include <unistd.h>     // close
 
-#define HUE_BRIDGE_DTLS_CIPHER "PSK-AES128-GCM-SHA256"
+#include <mbedtls/debug.h>
+#include <mbedtls/timing.h>
+
+#define HUE_BRIDGE_DTLS_CIPHER "TLS-PSK-WITH-AES-128-GCM-SHA256"
 #define HUE_BRIDGE_DTLS_PORT 2100
 #define PSK_HEX_EXPECTED_LEN 32
 
-static int udp_socket_connect(hue_dtls_context *context,
-                              const char *bridge_ip) {
-  if (!context) {
-    fprintf(stderr, "context is null\n");
-    return -1;
-  }
+typedef struct {
+    mbedtls_timing_delay_context timer;
+} dtls_timer_context;
 
-  context->socket = socket(AF_INET, SOCK_DGRAM, 0);
-  if (context->socket < 0) {
-    perror("socket");
-    context->socket = -1;
-    return -1;
-  }
-
-  struct sockaddr_in addr = {0};
-  addr.sin_family = AF_INET;
-  addr.sin_port = htons(HUE_BRIDGE_DTLS_PORT);
-  if (inet_pton(AF_INET, bridge_ip, &addr.sin_addr) != 1) {
-    perror("inet_pton");
-    close(context->socket);
-    context->socket = -1;
-    return -1;
-  }
-
-  if (connect(context->socket, (struct sockaddr *)&addr, sizeof(addr))) {
-    perror("connect");
-    close(context->socket);
-    context->socket = -1;
-    return -1;
-  }
-
-  return 0;
+static void timer_set_delay(void *data, uint32_t int_ms, uint32_t fin_ms) {
+    dtls_timer_context *ctx = (dtls_timer_context *)data;
+    mbedtls_timing_set_delay(&ctx->timer, int_ms, fin_ms);
 }
 
-static unsigned int psk_client_callback(SSL *ssl, const char *hint,
-                                        char *identity,
-                                        unsigned int max_identity_len,
-                                        unsigned char *psk,
-                                        unsigned int max_psk_len) {
-  // Suppress unused parameter warnings.
-  (void)ssl;
-  (void)hint;
+static int timer_get_delay(void *data) {
+    dtls_timer_context *ctx = (dtls_timer_context *)data;
+    return mbedtls_timing_get_delay(&ctx->timer);
+}
 
-  const char *psk_identity = getenv("HUE_APPLICATION_ID");
-  const char *psk_hex = getenv("HUE_CLIENTKEY");
+static int udp_socket_connect(hue_dtls_context *context, const char *bridge_ip) {
+    if (!context) {
+        fprintf(stderr, "context is null\n");
+        return -1;
+    }
 
-  if (!psk_identity || !psk_hex) {
-    fprintf(stderr, "HUE_APPLICATION_ID or HUE_CLIENTKEY not set\n");
+    mbedtls_net_init(&context->net);
+
+    if (mbedtls_net_connect(&context->net, bridge_ip, "2100", MBEDTLS_NET_PROTO_UDP) != 0) {
+        fprintf(stderr, "mbedtls_net_connect() failed\n");
+        return -1;
+    }
+
     return 0;
-  }
+}
 
-  // Set the PSK identity.
-  if (strlen(psk_identity) >= max_identity_len) {
-    fprintf(stderr, "PSK identity is too long\n");
+static int setup_psk(mbedtls_ssl_config *conf) {
+    const char *psk_identity = getenv("HUE_APPLICATION_ID");
+    const char *psk_hex = getenv("HUE_CLIENTKEY");
+
+    if (!psk_identity || !psk_hex) {
+        fprintf(stderr, "HUE_APPLICATION_ID or HUE_CLIENTKEY not set\n");
+        return -1;
+    }
+
+    unsigned char psk[PSK_HEX_EXPECTED_LEN / 2];
+    const size_t psk_hex_len = strlen(psk_hex);
+
+    if (psk_hex_len != PSK_HEX_EXPECTED_LEN) {
+        fprintf(stderr, "PSK hex length (%zu) is not the expected length (%d)\n", psk_hex_len, PSK_HEX_EXPECTED_LEN);
+        return -1;
+    }
+
+    for (size_t i = 0; i < psk_hex_len / 2; i++) {
+        if (sscanf(psk_hex + 2 * i, "%2hhx", &psk[i]) != 1) {
+            fprintf(stderr, "Failed to parse PSK hex string\n");
+            return -1;
+        }
+    }
+
+    if (mbedtls_ssl_conf_psk(conf, psk, sizeof(psk), (const unsigned char *)psk_identity, strlen(psk_identity)) != 0) {
+        fprintf(stderr, "mbedtls_ssl_conf_psk() failed\n");
+        return -1;
+    }
+
     return 0;
-  }
-
-  strncpy(identity, psk_identity, max_identity_len);
-
-  // Set the PSK key.
-  const size_t psk_hex_len = strlen(psk_hex);
-  if (psk_hex_len != PSK_HEX_EXPECTED_LEN) {
-    fprintf(stderr, "PSK hex length (%zu) is not the expected length (%d)\n",
-            psk_hex_len, PSK_HEX_EXPECTED_LEN);
-    return 0;
-  }
-
-  // Convert the PSK key from hex to binary.
-  if (psk_hex_len / 2 > max_psk_len) {
-    fprintf(stderr, "PSK hex is too long\n");
-    return 0;
-  }
-
-  for (size_t i = 0; i < psk_hex_len / 2; i++) {
-    sscanf(psk_hex + 2 * i, "%2hhx", &psk[i]);
-  }
-
-  return psk_hex_len / 2;
 }
 
 hue_dtls_context *hue_dtls_context_create(void) {
-  hue_dtls_context *context = malloc(sizeof(hue_dtls_context));
-  if (!context) {
-    perror("malloc");
-    return NULL;
-  }
+    hue_dtls_context *context = malloc(sizeof(hue_dtls_context));
+    if (!context) {
+        perror("malloc");
+        return NULL;
+    }
 
-  context->ssl_ctx = SSL_CTX_new(DTLS_client_method());
-  if (!context->ssl_ctx) {
-    fprintf(stderr, "SSL_CTX_new() failed\n");
-    free(context);
-    return NULL;
-  }
+    mbedtls_ssl_init(&context->ssl);
+    mbedtls_ssl_config_init(&context->conf);
+    mbedtls_ctr_drbg_init(&context->ctr_drbg);
+    mbedtls_entropy_init(&context->entropy);
 
-  SSL_CTX_set_psk_client_callback(context->ssl_ctx, psk_client_callback);
+    if (mbedtls_ctr_drbg_seed(&context->ctr_drbg, mbedtls_entropy_func, &context->entropy, NULL, 0) != 0) {
+        fprintf(stderr, "mbedtls_ctr_drbg_seed() failed\n");
+        free(context);
+        return NULL;
+    }
 
-  if (SSL_CTX_set_cipher_list(context->ssl_ctx, HUE_BRIDGE_DTLS_CIPHER) != 1) {
-    fprintf(stderr, "SSL_CTX_set_cipher_list() failed\n");
-    SSL_CTX_free(context->ssl_ctx);
-    context->ssl_ctx = NULL;
-    free(context);
-    return NULL;
-  }
+    if (mbedtls_ssl_config_defaults(&context->conf, MBEDTLS_SSL_IS_CLIENT, MBEDTLS_SSL_TRANSPORT_DATAGRAM, MBEDTLS_SSL_PRESET_DEFAULT) != 0) {
+        fprintf(stderr, "mbedtls_ssl_config_defaults() failed\n");
+        free(context);
+        return NULL;
+    }
 
-  context->ssl = NULL;
-  context->socket = -1;
+    mbedtls_ssl_conf_rng(&context->conf, mbedtls_ctr_drbg_random, &context->ctr_drbg);
 
-  return context;
+    if (setup_psk(&context->conf) != 0) {
+        free(context);
+        return NULL;
+    }
+
+    if (mbedtls_ssl_setup(&context->ssl, &context->conf) != 0) {
+        fprintf(stderr, "mbedtls_ssl_setup() failed\n");
+        free(context);
+        return NULL;
+    }
+
+    return context;
 }
 
 void hue_dtls_context_free(hue_dtls_context *context) {
-  if (context) {
-    if (context->ssl) {
-      SSL_free(context->ssl);
-      context->ssl = NULL;
+    if (context) {
+        mbedtls_ssl_free(&context->ssl);
+        mbedtls_ssl_config_free(&context->conf);
+        mbedtls_ctr_drbg_free(&context->ctr_drbg);
+        mbedtls_entropy_free(&context->entropy);
+        mbedtls_net_free(&context->net);
+        free(context);
     }
+}
 
-    if (context->ssl_ctx) {
-      SSL_CTX_free(context->ssl_ctx);
-      context->ssl_ctx = NULL;
-    }
-
-    if (context->socket != -1) {
-      close(context->socket);
-      context->socket = -1;
-    }
-
-    free(context);
-  }
+void my_debug(void *ctx, int level, const char *file, int line, const char *str) {
+    ((void) level);
+    fprintf((FILE *) ctx, "%s:%04d: %s", file, line, str);
 }
 
 int hue_dtls_connect(hue_dtls_context *context, const char *bridge_ip) {
-  if (!context || !context->ssl_ctx) {
-    fprintf(stderr, "context or context->ssl_ctx is null\n");
-    return -1;
-  }
+    if (!context) {
+        fprintf(stderr, "context is null\n");
+        return -1;
+    }
 
-  context->ssl = SSL_new(context->ssl_ctx);
-  if (!context->ssl) {
-    fprintf(stderr, "SSL_new() failed\n");
-    return -1;
-  }
+    if (udp_socket_connect(context, bridge_ip) != 0) {
+        fprintf(stderr, "udp_socket_connect() failed\n");
+        return -1;
+    }
 
-  if (udp_socket_connect(context, bridge_ip)) {
-    fprintf(stderr, "udp_socket_connect() failed\n");
-    SSL_free(context->ssl);
-    context->ssl = NULL;
-    return -1;
-  }
+    mbedtls_debug_set_threshold(4); // Set debug level (0-4)
+    mbedtls_ssl_conf_dbg(&context->conf, my_debug, stderr);
 
-  if (SSL_set_fd(context->ssl, context->socket) != 1) {
-    fprintf(stderr, "SSL_set_fd() failed\n");
-    SSL_free(context->ssl);
-    context->ssl = NULL;
-    close(context->socket);
-    context->socket = -1;
-    return -1;
-  }
+    // Set up timer callbacks
+    dtls_timer_context timer_ctx;
+    mbedtls_ssl_set_timer_cb(&context->ssl, &timer_ctx, timer_set_delay, timer_get_delay);
 
-  if (SSL_connect(context->ssl) != 1) {
-    fprintf(stderr, "SSL_connect() failed\n");
-    SSL_free(context->ssl);
-    context->ssl = NULL;
-    close(context->socket);
-    context->socket = -1;
-    return -1;
-  }
+    mbedtls_ssl_set_bio(&context->ssl, &context->net, mbedtls_net_send, mbedtls_net_recv, mbedtls_net_recv_timeout);
 
-  return 0;
+    int ret;
+    while ((ret = mbedtls_ssl_handshake(&context->ssl)) != 0) {
+        if (ret == MBEDTLS_ERR_SSL_WANT_READ || ret == MBEDTLS_ERR_SSL_WANT_WRITE) {
+            // Non-fatal error, retry the handshake
+            continue;
+        } else {
+            fprintf(stderr, "mbedtls_ssl_handshake() failed: -0x%x\n", -ret);
+            return -1;
+        }
+    }
+
+    return 0;
 }
 
-int hue_dtls_send_message(hue_dtls_context *context,
-                          const hue_stream_message *message) {
-  if (!context || !context->ssl || !message) {
-    fprintf(stderr, "context, context->ssl, or message is null\n");
-    return -1;
-  }
+int hue_dtls_send_message(hue_dtls_context *context, const hue_stream_message *message) {
+    if (!context || !message) {
+        fprintf(stderr, "context or message is null\n");
+        return -1;
+    }
 
-  return 0;
+    // Implement message sending logic here
+
+    return 0;
 }
