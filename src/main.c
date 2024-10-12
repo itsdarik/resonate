@@ -119,6 +119,14 @@ int main(int argc, char *argv[]) {
   }
   printf("Connected to Hue bridge\n");
 
+  // Initialize the current frame.
+  for (int i = 0; i < CHANNEL_COUNT; i++) {
+    current_frame[i].channel_id = i;
+    current_frame[i].color_value[0] = 0;
+    current_frame[i].color_value[1] = 0;
+    current_frame[i].color_value[2] = 0;
+  }
+
   // Initialize the current frame mutex.
   if (pthread_mutex_init(&curent_frame_mutex, NULL)) {
     fprintf(stderr, "pthread_mutext_init() failed\n");
