@@ -18,6 +18,10 @@ typedef struct {
 /**
  * @brief Create a new DTLS context.
  *
+ * This function requires these environment variables to be set:
+ * - HUE_APPLICATION_ID
+ * - HUE_CLIENTKEY
+ *
  * @return A new DTLS context, or NULL on failure.
  */
 hue_dtls_context *hue_dtls_context_create(void);
@@ -33,7 +37,7 @@ void hue_dtls_context_free(hue_dtls_context *context);
  * @brief Connect to the Hue bridge.
  *
  * Perform the DTLS handshake. Messages can be sent to the bridge using
- * @ref hue_dtls_send_message() if and only if this function returns 0.
+ * @ref hue_dtls_send_message() if this function returns 0.
  *
  * @param context The DTLS context.
  * @param bridge_ip The IP address of the Hue bridge.
