@@ -6,7 +6,7 @@
 #include "hue_dtls_client.h"
 
 #include <stddef.h> // NULL, size_t
-#include <stdio.h>  // perror, sscanf
+#include <stdio.h>  // fprintf, perror, sscanf
 #include <stdlib.h> // getenv, malloc, free
 #include <string.h> // strlen
 
