@@ -5,6 +5,7 @@ set(CMAKE_C_STANDARD 11)
 
 set(SOURCES
     src/main.c
+    src/animation.c
     src/hue_dtls_client.c
     src/hue_stream_message.c
 )
