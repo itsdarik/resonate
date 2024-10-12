@@ -1,14 +1,33 @@
 #include "hue_dtls_client.h"
+#include <errno.h>      // errno
 #include <netinet/in.h> // struct sockaddr_in
 #include <stddef.h>     // NULL, size_t
 #include <stdio.h>      // perror, sscanf
-#include <stdlib.h>     // getenv, malloc, free
+#include <stdlib.h>     // strtol, getenv, malloc, free
 #include <string.h>     // strncpy, strlen
 #include <sys/socket.h> // socket, connect
 #include <unistd.h>     // close
 
 #define MAX_PORT_NUMBER 65535
 #define PSK_HEX_EXPECTED_LEN 32
+
+static long bridge_port_to_long(const char *bridge_port) {
+  errno = 0;
+  char *endptr = NULL;
+  const long port = strtol(bridge_port, &endptr, 10);
+
+  if (errno) {
+    perror("strtol");
+    return -1;
+  }
+
+  if (port <= 0 || port > MAX_PORT_NUMBER || *endptr != '\0') {
+    fprintf(stderr, "Invalid port number: %s\n", bridge_port);
+    return -1;
+  }
+
+  return port;
+}
 
 static int udp_socket_connect(hue_dtls_context *context, const char *bridge_ip,
                               const char *bridge_port) {
@@ -17,9 +36,8 @@ static int udp_socket_connect(hue_dtls_context *context, const char *bridge_ip,
     return -1;
   }
 
-  const int port = atoi(bridge_port);
-  if (port <= 0 || port > MAX_PORT_NUMBER) {
-    fprintf(stderr, "Invalid port number: %s\n", bridge_port);
+  const long port = bridge_port_to_long(bridge_port);
+  if (port == -1) {
     return -1;
   }
 
@@ -136,9 +154,7 @@ int hue_dtls_connect(hue_dtls_context *context, const char *bridge_ip,
     return -1;
   }
 
-  const int port = atoi(bridge_port);
-  if (port <= 0 || port > MAX_PORT_NUMBER) {
-    fprintf(stderr, "Invalid port number: %s\n", bridge_port);
+  if (bridge_port_to_long(bridge_port) == -1) {
     return -1;
   }
 
