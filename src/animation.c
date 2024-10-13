@@ -149,7 +149,7 @@ static bool light_to_random_color(hue_stream_message_data *frame,
   }
   frame[light].color_value[0] = rand() % 0xffff;
   frame[light].color_value[1] = rand() % 0xffff;
-  frame[light].color_value[2] = BRIGHTNESS_HALF;
+  frame[light].color_value[2] = rand() % 0xffff;
   return true;
 }
 
@@ -166,14 +166,15 @@ static bool light_turn_off(hue_stream_message_data *frame, int channel_count,
 
 #define FRAME_RATE 60
 #define LIGHT_TURN_ON_INTERVAL_SECONDS 4
-#define LIGHT_TURN_OFF_OR_CHANGE_INTERVAL_SECONDS 2
+#define LIGHT_TURN_OFF_OR_CHANGE_INTERVAL_SECONDS 0.5
 
 static void animate_random(hue_stream_message_data *frame, int channel_count,
                            double progress) {
   (void)progress;
   for (int i = 0; i < channel_count; i++) {
     if (light_is_on(frame, channel_count, i)) {
-      if (rand() % LIGHT_TURN_OFF_OR_CHANGE_INTERVAL_SECONDS * FRAME_RATE ==
+      if (rand() %
+              (int)(LIGHT_TURN_OFF_OR_CHANGE_INTERVAL_SECONDS * FRAME_RATE) ==
           0) {
         if (rand() % 2 == 0) {
           light_turn_off(frame, channel_count, i);
@@ -182,7 +183,7 @@ static void animate_random(hue_stream_message_data *frame, int channel_count,
         }
       }
     } else {
-      if (rand() % LIGHT_TURN_ON_INTERVAL_SECONDS * FRAME_RATE == 0) {
+      if (rand() % (int)(LIGHT_TURN_ON_INTERVAL_SECONDS * FRAME_RATE) == 0) {
         light_to_random_color(frame, channel_count, i);
       }
     }
@@ -194,7 +195,7 @@ animation_spider_man_into_the_spider_verse(hue_stream_message_data *frame,
                                            int channel_count,
                                            const struct timespec *start_time) {
   const animation_phase phases[] = {
-      {0.0, animate_hold}, {10.0, animate_random}, {20.0, animate_hold}};
+      {0.0, animate_hold}, {1.0, animate_random}, {30.0, animate_hold}};
 
   const int num_phases = sizeof(phases) / sizeof(phases[0]);
   return animate(frame, channel_count, start_time, phases, num_phases);

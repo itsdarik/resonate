@@ -5,7 +5,7 @@
 #include <signal.h>
 #include <stdbool.h>
 #include <stdio.h>  // fprintf, printf, getchar
-#include <stdlib.h> // free
+#include <stdlib.h> // free, srand
 #include <string.h> // memcpy
 #include <time.h>   // nanosleep
 
@@ -225,6 +225,9 @@ int main(int argc, char *argv[]) {
 
   // Handle Ctrl+C to stop animating.
   signal(SIGINT, handle_signal);
+
+  // Seed the random number generator.
+  srand(time(NULL));
 
   // Display animation menu.
   display_menu();
