@@ -121,7 +121,7 @@ static void animate(int animation) {
 
 static void display_menu() {
   while (true) {
-    printf("--------------------------------\n");
+    printf("\n--------------------------------\n");
     printf("1. THX Deep Note\n");
     printf("2. Spider-Man: Into the Spider-Verse\n");
     printf("3. Quit\n");
