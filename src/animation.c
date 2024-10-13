@@ -28,6 +28,7 @@ animation_status animation_thx_deep_note(hue_stream_message_data *frame,
   if (elapsed_time < 3.3) {
     // Black.
   } else if (elapsed_time < 6.3) {
+    // Fade to blue.
     double progress = (elapsed_time - 3.3) / 3.0;
     uint16_t x = 0x38af;
     uint16_t y = 0x3134;
