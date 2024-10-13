@@ -227,7 +227,9 @@ int main(int argc, char *argv[]) {
   signal(SIGINT, handle_signal);
 
   // Seed the random number generator.
-  srand(time(NULL));
+  const time_t seed = time(NULL);
+  printf("seed: %ld\n", seed);
+  srand(seed);
 
   // Display animation menu.
   display_menu();
