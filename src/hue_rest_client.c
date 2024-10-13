@@ -34,6 +34,10 @@ int hue_rest_start_entertainment_area_streaming(
            bridge_ip, entertainment_config_id);
   curl_easy_setopt(curl, CURLOPT_URL, url);
 
+  // Ignore SSL certificate verification.
+  curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 0L);
+  curl_easy_setopt(curl, CURLOPT_SSL_VERIFYHOST, 0L);
+
   // Set the request method.
   curl_easy_setopt(curl, CURLOPT_CUSTOMREQUEST, "PUT");
 
