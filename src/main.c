@@ -110,10 +110,11 @@ static void animate(int animation) {
     animation_status status = 0;
     switch (animation) {
     case ANIMATION_THX_DEEP_NOTE:
-      status = animation_thx_deep_note(frame, &start_time);
+      status = animation_thx_deep_note(frame, CHANNEL_COUNT, &start_time);
       break;
     case ANIMATION_SPIDER_MAN_INTO_THE_SPIDER_VERSE:
-      status = animation_spider_man_into_the_spider_verse(frame, &start_time);
+      status = animation_spider_man_into_the_spider_verse(frame, CHANNEL_COUNT,
+                                                          &start_time);
       break;
     default:
       fprintf(stderr, "Invalid animation\n");

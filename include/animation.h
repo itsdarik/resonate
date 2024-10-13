@@ -20,11 +20,13 @@ enum animation_status {
  * @brief Animate the lights to the THX Deep Note.
  *
  * @param frame The frame to render.
+ * @param channel_count The number of channels in the frame.
  * @param start_time The time when the animation started.
  *
  * @return The status of the animation.
  */
 animation_status animation_thx_deep_note(hue_stream_message_data *frame,
+                                         int channel_count,
                                          const struct timespec *start_time);
 
 /**
@@ -32,10 +34,12 @@ animation_status animation_thx_deep_note(hue_stream_message_data *frame,
  * Spider-Verse.
  *
  * @param frame The frame to render.
+ * @param channel_count The number of channels in the frame.
  * @param start_time The time when the animation started.
  *
  * @return The status of the animation.
  */
 animation_status
 animation_spider_man_into_the_spider_verse(hue_stream_message_data *frame,
+                                           int channel_count,
                                            const struct timespec *start_time);
