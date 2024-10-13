@@ -195,7 +195,7 @@ animation_spider_man_into_the_spider_verse(hue_stream_message_data *frame,
                                            int channel_count,
                                            const struct timespec *start_time) {
   const animation_phase phases[] = {
-      {0.0, animate_hold}, {1.0, animate_random}, {30.0, animate_hold}};
+      {0.0, animate_hold}, {6.0, animate_random}, {44.0, animate_hold}};
 
   const int num_phases = sizeof(phases) / sizeof(phases[0]);
   return animate(frame, channel_count, start_time, phases, num_phases);
