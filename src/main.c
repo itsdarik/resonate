@@ -77,12 +77,13 @@ static hue_dtls_context *connect_to_bridge(const char *bridge_ip) {
   return context;
 }
 
-static void initialize_current_frame() {
-  for (int i = 0; i < CHANNEL_COUNT; i++) {
-    current_frame[i].channel_id = i;
-    current_frame[i].color_value[0] = 0;
-    current_frame[i].color_value[1] = 0;
-    current_frame[i].color_value[2] = 0;
+static void initialize_frame(hue_stream_message_data *frame,
+                             int channel_count) {
+  for (int i = 0; i < channel_count; i++) {
+    frame[i].channel_id = i;
+    frame[i].color_value[0] = 0;
+    frame[i].color_value[1] = 0;
+    frame[i].color_value[2] = 0;
   }
 }
 
@@ -101,15 +102,18 @@ static void animate(int animation) {
     return;
   }
 
+  hue_stream_message_data frame[CHANNEL_COUNT] = {0};
+  initialize_frame(frame, CHANNEL_COUNT);
+
   animating = true;
   while (animating) {
     animation_status status = 0;
     switch (animation) {
     case ANIMATION_THX_DEEP_NOTE:
-      status = animation_thx_deep_note(&start_time);
+      status = animation_thx_deep_note(frame, &start_time);
       break;
     case ANIMATION_SPIDER_MAN_INTO_THE_SPIDER_VERSE:
-      status = animation_spider_man_into_the_spider_verse(&start_time);
+      status = animation_spider_man_into_the_spider_verse(frame, &start_time);
       break;
     default:
       fprintf(stderr, "Invalid animation\n");
@@ -128,13 +132,18 @@ static void animate(int animation) {
       break;
     }
 
+    // Update the current frame.
+    pthread_mutex_lock(&current_frame_mutex);
+    memcpy(current_frame, frame, sizeof(frame));
+    pthread_mutex_unlock(&current_frame_mutex);
+
     // Animate at the specified frame rate.
     struct timespec ts = {.tv_sec = 0, .tv_nsec = NANOSECONDS_PER_FRAME};
     nanosleep(&ts, NULL);
   }
 
   // Turn lights off after the animation ends or is interrupted.
-  initialize_current_frame();
+  initialize_frame(current_frame, CHANNEL_COUNT);
 }
 
 static void display_menu() {
@@ -183,7 +192,7 @@ int main(int argc, char *argv[]) {
   printf("Connected to Hue bridge\n");
 
   // Initialize the current frame.
-  initialize_current_frame();
+  initialize_frame(current_frame, CHANNEL_COUNT);
 
   // Initialize the current frame mutex.
   if (pthread_mutex_init(&current_frame_mutex, NULL)) {
