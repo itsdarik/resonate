@@ -1,5 +1,6 @@
 #include "animation.h"
 #include "hue_dtls_client.h"
+#include "hue_rest_client.h"
 #include <pthread.h>
 #include <signal.h>
 #include <stdbool.h>
@@ -62,6 +63,13 @@ static hue_dtls_context *connect_to_bridge(const char *bridge_ip) {
     return NULL;
   }
 
+  // Start entertainment area streaming.
+  if (hue_rest_start_entertainment_area_streaming()) {
+    fprintf(stderr, "hue_rest_start_entertainment_area_streaming() failed\n");
+    return NULL;
+  }
+
+  // Perform the DTLS handshake.
   hue_dtls_context *context = hue_dtls_context_create();
   if (!context) {
     fprintf(stderr, "hue_dtls_context_create() failed\n");
