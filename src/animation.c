@@ -107,7 +107,7 @@ animation_status animation_thx_deep_note(hue_stream_message_data *frame,
   for (int i = 0; i < num_phases; i++) {
     const double phase_start_time = phases[i].start_time;
     const double phase_end_time =
-        i < num_phases - 1 ? phases[i + 1].start_time : elapsed_time + 1.0;
+        i < num_phases - 1 ? phases[i + 1].start_time : 0;
     if (elapsed_time >= phase_start_time && elapsed_time < phase_end_time) {
       const double phase_duration = phase_end_time - phase_start_time;
       const double phase_progress =
