@@ -1,8 +1,9 @@
 #include "hue_stream_message.h"
 
-#include <stdio.h>  // fprintf, perror
-#include <stdlib.h> // malloc
-#include <string.h> // memcpy, memset
+#include <arpa/inet.h> // htons
+#include <stdio.h>     // fprintf, perror
+#include <stdlib.h>    // malloc
+#include <string.h>    // memcpy, memset
 
 hue_stream_message *
 hue_stream_message_create(const hue_stream_message_data *data,
@@ -109,9 +110,11 @@ void hue_stream_message_serialize(const hue_stream_message *message,
            sizeof(message->data[i].channel_id));
     ptr += sizeof(message->data[i].channel_id);
 
-    memcpy(ptr, message->data[i].color_value,
-           sizeof(message->data[i].color_value));
-    ptr += sizeof(message->data[i].color_value);
+    for (int j = 0; j < HUE_STREAM_MESSAGE_COLOR_VALUE_ELEMENTS; j++) {
+      uint16_t color_value_net = htons(message->data[i].color_value[j]);
+      memcpy(ptr, &color_value_net, sizeof(color_value_net));
+      ptr += sizeof(color_value_net);
+    }
   }
 }
 

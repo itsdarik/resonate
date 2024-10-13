@@ -27,14 +27,19 @@ animation_status animation_thx_deep_note(hue_stream_message_data *frame,
 
   if (elapsed_time < 5.0) {
     double progress = elapsed_time / 5.0;
-    printf("Phase 1: %f\n", progress);
-    frame[0].color_value[0] = interpolate(0, 255, progress);
+    uint16_t x = 0x0000;
+    uint16_t y = interpolate(0x0000, 0xffff, progress);
+    uint16_t brightness = interpolate(0x0000, 0xffff, progress);
+    for (int i = 0; i < 10; i++) {
+      frame[i].color_value[0] = x;
+      frame[i].color_value[1] = y;
+      frame[i].color_value[2] = brightness;
+    }
+    printf("brightness: %d\n", brightness);
   } else if (elapsed_time < 10.0) {
-    double progress = (elapsed_time - 5.0) / 5.0;
-    printf("Phase 2: %f\n", progress);
+    // Do nothing.
   } else if (elapsed_time < 15.0) {
-    double progress = (elapsed_time - 10.0) / 5.0;
-    printf("Phase 3: %f\n", progress);
+    // Do nothing.
   } else {
     return ANIMATION_STATUS_END;
   }
