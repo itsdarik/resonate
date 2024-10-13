@@ -119,10 +119,12 @@ static void animate(int animation) {
 
     if (status == ANIMATION_STATUS_ERROR) {
       fprintf(stderr, "Animation failed\n");
+      animating = false;
       break;
     }
 
     if (status == ANIMATION_STATUS_END) {
+      animating = false;
       break;
     }
 
