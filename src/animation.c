@@ -48,36 +48,36 @@ static void set_all_same_brightness(hue_stream_message_data *frame,
 #define COLOR_WHITE_X 0x50b0
 #define COLOR_WHITE_Y 0x55b6
 
-void animate_hold(hue_stream_message_data *frame, int channel_count,
-                  double progress) {
+static void animate_hold(hue_stream_message_data *frame, int channel_count,
+                         double progress) {
   (void)frame;
   (void)channel_count;
   (void)progress;
 }
 
-void animate_fade_to_blue(hue_stream_message_data *frame, int channel_count,
-                          double progress) {
+static void animate_fade_to_blue(hue_stream_message_data *frame,
+                                 int channel_count, double progress) {
   set_all_same(frame, channel_count, COLOR_BLUE_X, COLOR_BLUE_Y,
                interpolate(BRIGHTNESS_ZERO, BRIGHTNESS_HALF, progress));
 }
 
-void animate_fade_to_dim(hue_stream_message_data *frame, int channel_count,
-                         double progress) {
+static void animate_fade_to_dim(hue_stream_message_data *frame,
+                                int channel_count, double progress) {
   set_all_same(frame, channel_count,
                interpolate(COLOR_BLUE_X, COLOR_WHITE_X, progress),
                interpolate(COLOR_BLUE_Y, COLOR_WHITE_Y, progress),
                interpolate(BRIGHTNESS_HALF, BRIGHTNESS_LOW, progress));
 }
 
-void animate_fade_to_white(hue_stream_message_data *frame, int channel_count,
-                           double progress) {
+static void animate_fade_to_white(hue_stream_message_data *frame,
+                                  int channel_count, double progress) {
   set_all_same_brightness(
       frame, channel_count,
       interpolate(BRIGHTNESS_LOW, BRIGHTNESS_MAX, progress));
 }
 
-void animate_fade_to_off(hue_stream_message_data *frame, int channel_count,
-                         double progress) {
+static void animate_fade_to_off(hue_stream_message_data *frame,
+                                int channel_count, double progress) {
   set_all_same_brightness(
       frame, channel_count,
       interpolate(BRIGHTNESS_MAX, BRIGHTNESS_ZERO, progress));
