@@ -149,7 +149,7 @@ static bool light_to_random_color(hue_stream_message_data *frame,
   }
   frame[light].color_value[0] = rand() % 0xffff;
   frame[light].color_value[1] = rand() % 0xffff;
-  frame[light].color_value[2] = rand() % 0xffff;
+  frame[light].color_value[2] = BRIGHTNESS_HALF;
   return true;
 }
 
