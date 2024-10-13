@@ -42,19 +42,19 @@ animation_status animation_thx_deep_note(hue_stream_message_data *frame,
   } else if (elapsed_time < 19.0) {
     // Fade down.
     double progress = (elapsed_time - 17.0) / 2.0;
+    uint16_t x = interpolate(0x38af, 0x50b0, progress);
+    uint16_t y = interpolate(0x3134, 0x55b6, progress);
     uint16_t brightness = interpolate(0x8000, 0x0000, progress);
     for (int i = 0; i < 10; i++) {
+      frame[i].color_value[0] = x;
+      frame[i].color_value[1] = y;
       frame[i].color_value[2] = brightness;
     }
   } else if (elapsed_time < 22.0) {
     // Fade to bright white.
     double progress = (elapsed_time - 19.0) / 3.0;
-    uint16_t x = interpolate(0x38af, 0x50b0, progress);
-    uint16_t y = interpolate(0x3134, 0x55b6, progress);
     uint16_t brightness = interpolate(0x0000, 0xffff, progress);
     for (int i = 0; i < 10; i++) {
-      frame[i].color_value[0] = x;
-      frame[i].color_value[1] = y;
       frame[i].color_value[2] = brightness;
     }
   } else if (elapsed_time < 28.0) {
