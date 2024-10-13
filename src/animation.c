@@ -25,22 +25,50 @@ animation_status animation_thx_deep_note(hue_stream_message_data *frame,
   double elapsed_time = current_time.tv_sec - start_time->tv_sec +
                         (current_time.tv_nsec - start_time->tv_nsec) / 1e9;
 
-  if (elapsed_time < 5.0) {
-    double progress = elapsed_time / 5.0;
-    uint16_t x = 0x0000;
-    uint16_t y = interpolate(0x0000, 0xffff, progress);
-    uint16_t brightness = interpolate(0x0000, 0xffff, progress);
+  if (elapsed_time < 3.3) {
+    // Black.
+  } else if (elapsed_time < 6.3) {
+    double progress = (elapsed_time - 3.3) / 3.0;
+    uint16_t x = 0x38af;
+    uint16_t y = 0x3134;
+    uint16_t brightness = interpolate(0x0000, 0x8000, progress);
     for (int i = 0; i < 10; i++) {
       frame[i].color_value[0] = x;
       frame[i].color_value[1] = y;
       frame[i].color_value[2] = brightness;
     }
-    printf("brightness: %d\n", brightness);
-  } else if (elapsed_time < 10.0) {
-    // Do nothing.
-  } else if (elapsed_time < 15.0) {
-    // Do nothing.
-  } else {
+  } else if (elapsed_time < 17.0) {
+    // Hold blue.
+  } else if (elapsed_time < 19.0) {
+    // Fade down.
+    double progress = (elapsed_time - 17.0) / 2.0;
+    uint16_t brightness = interpolate(0x8000, 0x4000, progress);
+    for (int i = 0; i < 10; i++) {
+      frame[i].color_value[2] = brightness;
+    }
+  }
+  else if (elapsed_time < 22.0) {
+    // Fade to bright white.
+    double progress = (elapsed_time - 19.0) / 3.0;
+    uint16_t x = interpolate(0x38af, 0x50b0, progress);
+    uint16_t y = interpolate(0x3134, 0x55b6, progress);
+    uint16_t brightness = interpolate(0x4000, 0xffff, progress);
+    for (int i = 0; i < 10; i++) {
+      frame[i].color_value[0] = x;
+      frame[i].color_value[1] = y;
+      frame[i].color_value[2] = brightness;
+    }
+  } else if (elapsed_time < 28.0) {
+    // Hold bright white.
+  } else if (elapsed_time < 30.5) {
+    // Fade to black.
+    double progress = (elapsed_time - 28.0) / 2.5;
+    uint16_t brightness = interpolate(0xffff, 0x0000, progress);
+    for (int i = 0; i < 10; i++) {
+      frame[i].color_value[2] = brightness;
+    }
+  }
+  else {
     return ANIMATION_STATUS_END;
   }
 
