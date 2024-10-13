@@ -64,7 +64,8 @@ static hue_dtls_context *connect_to_bridge(const char *bridge_ip) {
   }
 
   // Start entertainment area streaming.
-  if (hue_rest_start_entertainment_area_streaming()) {
+  if (hue_rest_start_entertainment_area_streaming(bridge_ip,
+                                                  ENTERTAINMENT_CONFIG_ID)) {
     fprintf(stderr, "hue_rest_start_entertainment_area_streaming() failed\n");
     return NULL;
   }
