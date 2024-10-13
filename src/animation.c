@@ -40,15 +40,15 @@ static void set_all_same_brightness(hue_stream_message_data *frame,
 }
 
 #define BRIGHTNESS_ZERO 0x0000
-#define BRIGHTNESS_LOW 0x00f0
+#define BRIGHTNESS_LOW 0x0fff
 #define BRIGHTNESS_HALF 0x7fff
 #define BRIGHTNESS_MAX 0xffff
 
 #define COLOR_BLUE_X 0x38af
 #define COLOR_BLUE_Y 0x3134
 
-#define COLOR_WHITE_X 0x50b0
-#define COLOR_WHITE_Y 0x55b6
+#define COLOR_WHITE_X 0x50d2
+#define COLOR_WHITE_Y 0x54a9
 
 static animation_status animate(hue_stream_message_data *frame,
                                 int channel_count,
