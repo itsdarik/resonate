@@ -27,3 +27,6 @@ target_link_libraries(resonate PRIVATE
     "/usr/lib/x86_64-linux-gnu/libmbedtls.so"
     "/usr/lib/x86_64-linux-gnu/libmbedcrypto.so"
 )
+
+find_package(CURL REQUIRED)
+target_link_libraries(resonate PRIVATE CURL::libcurl)
