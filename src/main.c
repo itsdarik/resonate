@@ -3,7 +3,7 @@
 #include <pthread.h>
 #include <signal.h>
 #include <stdbool.h>
-#include <stdio.h>  // fprintf, printf, scanf
+#include <stdio.h>  // fprintf, printf, getchar
 #include <stdlib.h> // free
 #include <string.h> // memcpy
 #include <time.h>   // nanosleep
@@ -156,17 +156,19 @@ static void display_menu() {
     printf("--------------------------------\n");
 
     printf("Enter your choice: ");
-    int choice = 0;
-    scanf("%d", &choice);
+    int choice = getchar();
+    int c = 0;
+    while ((c = getchar()) != '\n' && c != EOF)
+      ;
 
     switch (choice) {
-    case 1:
+    case '1':
       animate(ANIMATION_THX_DEEP_NOTE);
       break;
-    case 2:
+    case '2':
       animate(ANIMATION_SPIDER_MAN_INTO_THE_SPIDER_VERSE);
       break;
-    case 3:
+    case '3':
       return;
     default:
       printf("Invalid choice. Please try again.\n");
@@ -226,8 +228,3 @@ int main(int argc, char *argv[]) {
   hue_dtls_context_free(context);
   return 0;
 }
-
-/*
- * TODO:
- * - Curl to send start header.
- */
