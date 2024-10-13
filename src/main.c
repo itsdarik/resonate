@@ -95,18 +95,34 @@ static void handle_signal(int signal) {
 }
 
 static void animate(int animation) {
+  struct timespec start_time = {0};
+  if (clock_gettime(CLOCK_MONOTONIC, &start_time)) {
+    fprintf(stderr, "clock_gettime() failed\n");
+    return;
+  }
+
   animating = true;
   while (animating) {
+    animation_status status = 0;
     switch (animation) {
     case ANIMATION_THX_DEEP_NOTE:
-      animation_thx_deep_note();
+      status = animation_thx_deep_note(&start_time);
       break;
     case ANIMATION_SPIDER_MAN_INTO_THE_SPIDER_VERSE:
-      animation_spider_man_into_the_spider_verse();
+      status = animation_spider_man_into_the_spider_verse(&start_time);
       break;
     default:
       fprintf(stderr, "Invalid animation\n");
       animating = false;
+      break;
+    }
+
+    if (status == ANIMATION_STATUS_ERROR) {
+      fprintf(stderr, "Animation failed\n");
+      break;
+    }
+
+    if (status == ANIMATION_STATUS_END) {
       break;
     }
 
