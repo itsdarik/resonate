@@ -4,6 +4,13 @@
 
 #include <stdlib.h> // getenv
 
+static size_t write_callback(void *ptr, size_t size, size_t nmemb,
+                             void *stream) {
+  (void)ptr;
+  (void)stream;
+  return size * nmemb;
+}
+
 int hue_rest_start_entertainment_area_streaming(
     const char *bridge_ip, const char *entertainment_config_id) {
   // Validate input parameters.
@@ -67,6 +74,10 @@ int hue_rest_start_entertainment_area_streaming(
   }
 
   curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
+
+  // Don't write the response to stdout.
+  curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, write_callback);
+  curl_easy_setopt(curl, CURLOPT_WRITEDATA, NULL);
 
   int ret = 0;
 
