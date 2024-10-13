@@ -120,8 +120,8 @@ animation_status animation_thx_deep_note(hue_stream_message_data *frame,
                                          const struct timespec *start_time) {
   const animation_phase phases[] = {
       {0.0, animate_hold},           {3.3, animate_fade_to_blue},
-      {6.3, animate_hold},           {17.0, animate_fade_to_dim},
-      {18.5, animate_fade_to_white}, {21.5, animate_hold},
+      {6.3, animate_hold},           {16.5, animate_fade_to_dim},
+      {19.0, animate_fade_to_white}, {21.8, animate_hold},
       {28.0, animate_fade_to_off},   {30.5, animate_hold},
   };
 
