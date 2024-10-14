@@ -229,7 +229,7 @@ int main(int argc, char *argv[]) {
   // Seed the random number generator.
   const time_t seed = time(NULL);
   printf("seed: %ld\n", seed);
-  srand(1728867733);
+  srand(1728868986);
 
   // Display animation menu.
   display_menu();
