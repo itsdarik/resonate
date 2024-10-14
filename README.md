@@ -26,3 +26,9 @@ the environment variables in `~/.bashrc`.
 * The `hue-application-id` returned by the `/auth/v1` endpoint.
 * The PSK identity used to setup the DTLS connection.
 * The `HUE_APPLICATION_ID` environment variable.
+
+## Other good seeds
+
+```
+1728868986
+```
