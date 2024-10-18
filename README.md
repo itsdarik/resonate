@@ -27,8 +27,16 @@ the environment variables in `~/.bashrc`.
 * The PSK identity used to setup the DTLS connection.
 * The `HUE_APPLICATION_ID` environment variable.
 
-## Other good seeds
+## Build
 
 ```
-1728868986
+mkdir build && cd build
+cmake ..
+make
+```
+
+## Run
+
+```
+./resonate <Hue bridge IP address>
 ```
