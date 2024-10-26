@@ -1,0 +1,64 @@
+#/usr/bin/python3
+import re
+
+def time_to_seconds(time_str):
+    """Convert a timestamp string to seconds."""
+    minutes, seconds = map(float, time_str.split(':'))
+    return minutes * 60 + seconds
+
+def main():
+    lines = [
+        "00:09.509 - cough frame 9 of 11",
+        "00:18.227 - Sony start glitch",
+        "00:18.769 - Sony stop glitch",
+        "00:19.019 - Sony start",
+        "00:19.394 - Sony stop",
+        "00:20.562 - Sony start",
+        "00:22.773 - Sony stop",
+        "00:22.981 - Sony fading out / Columbia fading in start",
+        "00:26.526 - Sony fading out / Columbia fading in stop",
+        "00:27.361 - Columbia start",
+        "00:27.444 - Columbia stop",
+        "00:27.945 - Columbia start",
+        "00:28.195 - Columbia stop",
+        "00:28.654 - Columbia start",
+        "00:28.987 - Columbia stop",
+        "00:29.738 - Columbia start",
+        "00:30.322 - Columbia stop",
+        "00:30.781 - Columbia start",
+        "00:31.907 - Columbia stop",
+        "00:31.990 - Columbia start",
+        "00:32.407 - Columbia stop",
+        "00:33.992 - Columbia start",
+        "00:35.160 - Columbia stop",
+        "00:36.495 - Marvel start",
+        "00:45.504 - Marvel stop",
+        "00:47.297 - Marvel start",
+        "00:48.215 - Marvel stop",
+        "00:48.257 - Sony Pictures Animation start",
+        "00:52.678 - Sony Pictures Animation stop",
+        "00:52.970 - Sony Pictures Animation start",
+        "00:53.011 - Sony Pictures Animation stop",
+        "00:54.346 - Sony Pictures Animation start",
+        "00:56.014 - Sony Pictures Animation stop",
+        "00:56.682 - Pascal Pictures start",
+        "01:03.272 - Pascal Pictures stop",
+        "01:03.605 - Pascal Pictures start",
+        "01:04.147 - Pascal Pictures stop",
+        "01:04.398 - Lord Miller start",
+        "01:10.737 - Lord Miller stop"
+    ]
+
+    # Extract the first timestamp
+    first_timestamp = re.match(r"(\d{2}:\d{2}\.\d{3})", lines[0]).group(1)
+    first_seconds = time_to_seconds(first_timestamp)
+
+    for line in lines:
+        timestamp = re.match(r"(\d{2}:\d{2}\.\d{3})", line).group(1)
+        current_seconds = time_to_seconds(timestamp)
+        offset_seconds = current_seconds - first_seconds
+        new_line = re.sub(r"^\d{2}:\d{2}\.\d{3}", f"{offset_seconds:.3f}", line)
+        print(new_line)
+
+if __name__ == "__main__":
+    main()

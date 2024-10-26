@@ -1,0 +1,39 @@
+0.000 - cough frame 9 of 11
+8.718 - Sony start glitch
+9.260 - Sony stop glitch
+9.510 - Sony start
+9.885 - Sony stop
+11.053 - Sony start
+13.264 - Sony stop
+13.472 - Sony fading out / Columbia fading in start
+17.017 - Sony fading out / Columbia fading in stop
+17.852 - Columbia start
+17.935 - Columbia stop
+18.436 - Columbia start
+18.686 - Columbia stop
+19.145 - Columbia start
+19.478 - Columbia stop
+20.229 - Columbia start
+20.813 - Columbia stop
+21.272 - Columbia start
+22.398 - Columbia stop
+22.481 - Columbia start
+22.898 - Columbia stop
+24.483 - Columbia start
+25.651 - Columbia stop
+26.986 - Marvel start
+35.995 - Marvel stop
+37.788 - Marvel start
+38.706 - Marvel stop
+38.748 - Sony Pictures Animation start
+43.169 - Sony Pictures Animation stop
+43.461 - Sony Pictures Animation start
+43.502 - Sony Pictures Animation stop
+44.837 - Sony Pictures Animation start
+46.505 - Sony Pictures Animation stop
+47.173 - Pascal Pictures start
+53.763 - Pascal Pictures stop
+54.096 - Pascal Pictures start
+54.638 - Pascal Pictures stop
+54.889 - Lord Miller start
+61.228 - Lord Miller stop
