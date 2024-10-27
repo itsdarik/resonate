@@ -205,7 +205,7 @@ static bool lights_to_random_color(hue_stream_message_data *frame,
                                   int channel_count, int light) {
   const uint16_t x = rand() % 0xffff;
   const uint16_t y = rand() % 0xffff;
-  const uint16_t brightness = rand() % 0xffff;
+  const uint16_t brightness = 0xffff;
 
   for (int i = light; i < channel_count; i++) {
     frame[i].color_value[0] = x;
@@ -221,7 +221,7 @@ static bool lights_to_random_colors(hue_stream_message_data *frame,
   for (int i = start; i < channel_count; i++) {
     frame[i].color_value[0] = rand() % 0xffff;
     frame[i].color_value[1] = rand() % 0xffff;
-    frame[i].color_value[2] = rand() % 0xffff;
+    frame[i].color_value[2] = 0xffff;
   }
   return true;
 }
