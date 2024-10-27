@@ -307,6 +307,14 @@ animation_spider_man_across_the_spider_verse(hue_stream_message_data *frame,
         {54.096, animate_random_across},
         {54.638, animate_black},
         {54.889, animate_random_across},
+        {56.140, animate_black},
+        {56.265, animate_random_across},
+        {56.599, animate_black},
+        {56.807, animate_random_across},
+        {57.641, animate_black},
+        {58.642, animate_random_across},
+        {58.893, animate_black},
+        {59.185, animate_random_across},
         {61.228, animate_hold}
     };
 
