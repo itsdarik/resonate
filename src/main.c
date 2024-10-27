@@ -125,6 +125,10 @@ static void animate(int animation) {
       status = animation_spider_man_into_the_spider_verse(frame, CHANNEL_COUNT,
                                                           &start_time);
       break;
+    case ANIMATION_SPIDER_MAN_ACROSS_THE_SPIDER_VERSE:
+      status = animation_spider_man_across_the_spider_verse(frame, CHANNEL_COUNT,
+                                                          &start_time);
+      break;
     default:
       fprintf(stderr, "Invalid animation\n");
       animating = false;
@@ -161,7 +165,8 @@ static void display_menu() {
     printf("\n--------------------------------\n");
     printf("1. THX Deep Note\n");
     printf("2. Spider-Man: Into the Spider-Verse\n");
-    printf("3. Quit\n");
+    printf("3. Spider-Man: Across the Spider-Verse\n");
+    printf("4. Quit\n");
     printf("--------------------------------\n");
 
     printf("Enter your choice: ");
@@ -178,6 +183,9 @@ static void display_menu() {
       animate(ANIMATION_SPIDER_MAN_INTO_THE_SPIDER_VERSE);
       break;
     case '3':
+      animate(ANIMATION_SPIDER_MAN_ACROSS_THE_SPIDER_VERSE);
+      break;
+    case '4':
       return;
     default:
       printf("Invalid choice. Please try again.\n");

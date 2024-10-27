@@ -200,3 +200,116 @@ animation_spider_man_into_the_spider_verse(hue_stream_message_data *frame,
   const int num_phases = sizeof(phases) / sizeof(phases[0]);
   return animate(frame, channel_count, start_time, phases, num_phases);
 }
+
+static bool lights_to_random_color(hue_stream_message_data *frame,
+                                  int channel_count, int light) {
+  const uint16_t x = rand() % 0xffff;
+  const uint16_t y = rand() % 0xffff;
+  const uint16_t brightness = rand() % 0xffff;
+
+  for (int i = light; i < channel_count; i++) {
+    frame[i].color_value[0] = x;
+    frame[i].color_value[1] = y;
+    frame[i].color_value[2] = brightness;
+  }
+
+  return true;
+}
+
+static bool lights_to_random_colors(hue_stream_message_data *frame,
+                                   int channel_count, int start) {
+  for (int i = start; i < channel_count; i++) {
+    frame[i].color_value[0] = rand() % 0xffff;
+    frame[i].color_value[1] = rand() % 0xffff;
+    frame[i].color_value[2] = rand() % 0xffff;
+  }
+  return true;
+}
+
+#define ACROSS_LIGHTS_CHANGE_INTERVAL_SECONDS 0.25
+
+static void animate_random_across(hue_stream_message_data *frame, int channel_count,
+                           double progress) {
+  (void)progress;
+
+  if (channel_count == 0) {
+    return;
+  }
+
+  const bool lights_on = light_is_on(frame, channel_count, 0);
+
+  if (lights_on) {
+    if (rand() % (int)(ACROSS_LIGHTS_CHANGE_INTERVAL_SECONDS * FRAME_RATE) ==
+        0) {
+      if (rand() % 2 == 0) {
+        lights_to_random_color(frame, channel_count, 0);
+      } else {
+        lights_to_random_colors(frame, channel_count, 0);
+      }
+    }
+  } else {
+      if (rand() % 2 == 0) {
+        lights_to_random_color(frame, channel_count, 0);
+      } else {
+        lights_to_random_colors(frame, channel_count, 0);
+      }
+  }
+}
+
+static void animate_black(hue_stream_message_data *frame, int channel_count,
+                           double progress) {
+  (void)progress;
+  for (int i = 0; i < channel_count; i++) {
+    light_turn_off(frame, channel_count, i);
+  }
+}
+
+animation_status
+animation_spider_man_across_the_spider_verse(hue_stream_message_data *frame,
+                                           int channel_count,
+                                           const struct timespec *start_time) {
+    const animation_phase phases[] = {
+        {0.000, animate_hold},
+        {8.718, animate_random_across},
+        {9.260, animate_black},
+        {9.510, animate_random_across},
+        {9.885, animate_black},
+        {11.053, animate_random_across},
+        {13.264, animate_black},
+        {13.472, animate_random_across},
+        {17.017, animate_black},
+        {17.852, animate_random_across},
+        {17.935, animate_black},
+        {18.436, animate_random_across},
+        {18.686, animate_black},
+        {19.145, animate_random_across},
+        {19.478, animate_black},
+        {20.229, animate_random_across},
+        {20.813, animate_black},
+        {21.272, animate_random_across},
+        {22.398, animate_black},
+        {22.481, animate_random_across},
+        {22.898, animate_black},
+        {24.483, animate_random_across},
+        {25.651, animate_black},
+        {26.986, animate_random_across},
+        {35.995, animate_black},
+        {37.788, animate_random_across},
+        {38.706, animate_black},
+        {38.748, animate_random_across},
+        {43.169, animate_black},
+        {43.461, animate_random_across},
+        {43.502, animate_black},
+        {44.837, animate_random_across},
+        {46.505, animate_black},
+        {47.173, animate_random_across},
+        {53.763, animate_black},
+        {54.096, animate_random_across},
+        {54.638, animate_black},
+        {54.889, animate_random_across},
+        {61.228, animate_hold}
+    };
+
+  const int num_phases = sizeof(phases) / sizeof(phases[0]);
+  return animate(frame, channel_count, start_time, phases, num_phases);
+}
