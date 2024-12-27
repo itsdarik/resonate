@@ -126,8 +126,8 @@ static void animate(int animation) {
                                                           &start_time);
       break;
     case ANIMATION_SPIDER_MAN_ACROSS_THE_SPIDER_VERSE:
-      status = animation_spider_man_across_the_spider_verse(frame, CHANNEL_COUNT,
-                                                          &start_time);
+      status = animation_spider_man_across_the_spider_verse(
+          frame, CHANNEL_COUNT, &start_time);
       break;
     default:
       fprintf(stderr, "Invalid animation\n");

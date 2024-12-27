@@ -1,0 +1,51 @@
+# /usr/bin/python3
+import re
+
+
+def time_to_seconds(time_str):
+    """Convert a timestamp string to seconds."""
+    minutes, seconds = map(float, time_str.split(":"))
+    return minutes * 60 + seconds
+
+
+def main():
+    lines = [
+        "00:09.968 - last full white frame",
+        "00:16.016 - Columbia start",
+        "00:17.017 - Columbia stop",
+        "00:17.684 - Columbia start",
+        "00:18.894 - Columbia stop",
+        "00:19.477 - Columbia start",
+        "00:20.228 - Columbia stop",
+        "00:20.437 - Columbia start",
+        "00:21.438 - Columbia stop",
+        "00:21.689 - Columbia start",
+        "00:23.732 - Columbia stop",
+        "00:24.358 - Marvel start",
+        "00:37.454 - Marvel stop",
+        "00:38.080 - Sony Pictures Animation start",
+        "00:39.165 - Sony Pictures Animation stop",
+        "00:39.373 - Sony Pictures Animation start",
+        "00:41.500 - Sony Pictures Animation stop",
+        "00:42.168 - Sony Pictures Animation start",
+        "00:46.504 - Sony Pictures Animation stop",
+        "00:46.588 - Pascal Pictures start",
+        "00:46.796 - Pascal Pictures stop",
+        "00:46.922 - Pascal Pictures start",
+        "00:54.305 - Pascal Pictures stop",
+    ]
+
+    # Extract the first timestamp
+    first_timestamp = re.match(r"(\d{2}:\d{2}\.\d{3})", lines[0]).group(1)
+    first_seconds = time_to_seconds(first_timestamp)
+
+    for line in lines:
+        timestamp = re.match(r"(\d{2}:\d{2}\.\d{3})", line).group(1)
+        current_seconds = time_to_seconds(timestamp)
+        offset_seconds = current_seconds - first_seconds
+        new_line = re.sub(r"^\d{2}:\d{2}\.\d{3}", f"{offset_seconds:.3f}", line)
+        print(new_line)
+
+
+if __name__ == "__main__":
+    main()

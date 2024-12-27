@@ -1,0 +1,23 @@
+00:09.968 - last full white frame
+00:16.016 - Columbia start
+00:17.017 - Columbia stop
+00:17.684 - Columbia start
+00:18.894 - Columbia stop
+00:19.477 - Columbia start
+00:20.228 - Columbia stop
+00:20.437 - Columbia start
+00:21.438 - Columbia stop
+00:21.689 - Columbia start
+00:23.732 - Columbia stop
+00:24.358 - Marvel start
+00:37.454 - Marvel stop
+00:38.080 - Sony Pictures Animation start
+00:39.165 - Sony Pictures Animation stop
+00:39.373 - Sony Pictures Animation start
+00:41.500 - Sony Pictures Animation stop
+00:42.168 - Sony Pictures Animation start
+00:46.504 - Sony Pictures Animation stop
+00:46.588 - Pascal Pictures start
+00:46.796 - Pascal Pictures stop
+00:46.922 - Pascal Pictures start
+00:54.305 - Pascal Pictures stop

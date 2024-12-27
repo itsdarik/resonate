@@ -1,0 +1,23 @@
+0.000 - last full white frame
+6.048 - Columbia start
+7.049 - Columbia stop
+7.716 - Columbia start
+8.926 - Columbia stop
+9.509 - Columbia start
+10.260 - Columbia stop
+10.469 - Columbia start
+11.470 - Columbia stop
+11.721 - Columbia start
+13.764 - Columbia stop
+14.390 - Marvel start
+27.486 - Marvel stop
+28.112 - Sony Pictures Animation start
+29.197 - Sony Pictures Animation stop
+29.405 - Sony Pictures Animation start
+31.532 - Sony Pictures Animation stop
+32.200 - Sony Pictures Animation start
+36.536 - Sony Pictures Animation stop
+36.620 - Pascal Pictures start
+36.828 - Pascal Pictures stop
+36.954 - Pascal Pictures start
+44.337 - Pascal Pictures stop

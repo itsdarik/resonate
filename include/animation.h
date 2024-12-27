@@ -57,5 +57,5 @@ animation_spider_man_into_the_spider_verse(hue_stream_message_data *frame,
  */
 animation_status
 animation_spider_man_across_the_spider_verse(hue_stream_message_data *frame,
-                                           int channel_count,
-                                           const struct timespec *start_time);
+                                             int channel_count,
+                                             const struct timespec *start_time);

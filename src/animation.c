@@ -139,20 +139,6 @@ static bool light_is_on(hue_stream_message_data *frame, int channel_count,
   return frame[light].color_value[2] > 0;
 }
 
-static bool light_to_random_color(hue_stream_message_data *frame,
-                                  int channel_count, int light) {
-  if (light < 0 || light >= channel_count) {
-    fprintf(stderr,
-            "light_to_random_color() called with invalid light index %d\n",
-            light);
-    return false;
-  }
-  frame[light].color_value[0] = rand() % 0xffff;
-  frame[light].color_value[1] = rand() % 0xffff;
-  frame[light].color_value[2] = BRIGHTNESS_HALF;
-  return true;
-}
-
 static bool light_turn_off(hue_stream_message_data *frame, int channel_count,
                            int light) {
   if (light < 0 || light >= channel_count) {
@@ -168,41 +154,35 @@ static bool light_turn_off(hue_stream_message_data *frame, int channel_count,
 #define LIGHT_TURN_ON_INTERVAL_SECONDS 4
 #define LIGHT_TURN_OFF_OR_CHANGE_INTERVAL_SECONDS 0.5
 
-static void animate_random(hue_stream_message_data *frame, int channel_count,
-                           double progress) {
-  (void)progress;
-  for (int i = 0; i < channel_count; i++) {
-    if (light_is_on(frame, channel_count, i)) {
-      if (rand() %
-              (int)(LIGHT_TURN_OFF_OR_CHANGE_INTERVAL_SECONDS * FRAME_RATE) ==
-          0) {
-        if (rand() % 2 == 0) {
-          light_turn_off(frame, channel_count, i);
-        } else {
-          light_to_random_color(frame, channel_count, i);
-        }
-      }
-    } else {
-      if (rand() % (int)(LIGHT_TURN_ON_INTERVAL_SECONDS * FRAME_RATE) == 0) {
-        light_to_random_color(frame, channel_count, i);
-      }
-    }
-  }
-}
+static void animate_random_across(hue_stream_message_data *frame,
+                                  int channel_count, double progress);
+static void animate_black(hue_stream_message_data *frame, int channel_count,
+                          double progress);
 
 animation_status
 animation_spider_man_into_the_spider_verse(hue_stream_message_data *frame,
                                            int channel_count,
                                            const struct timespec *start_time) {
   const animation_phase phases[] = {
-      {0.0, animate_hold}, {6.0, animate_random}, {44.0, animate_hold}};
+      {0.000, animate_hold},   {6.048, animate_random_across},
+      {7.049, animate_black},  {7.716, animate_random_across},
+      {8.926, animate_black},  {9.509, animate_random_across},
+      {10.260, animate_black}, {10.469, animate_random_across},
+      {11.470, animate_black}, {11.721, animate_random_across},
+      {13.764, animate_black}, {14.390, animate_random_across},
+      {27.486, animate_black}, {28.112, animate_random_across},
+      {29.197, animate_black}, {29.405, animate_random_across},
+      {31.532, animate_black}, {32.200, animate_random_across},
+      {36.536, animate_black}, {36.620, animate_random_across},
+      {36.828, animate_black}, {36.954, animate_random_across},
+      {44.337, animate_hold}};
 
   const int num_phases = sizeof(phases) / sizeof(phases[0]);
   return animate(frame, channel_count, start_time, phases, num_phases);
 }
 
 static bool lights_to_random_color(hue_stream_message_data *frame,
-                                  int channel_count, int light) {
+                                   int channel_count, int light) {
   const uint16_t x = rand() % 0xffff;
   const uint16_t y = rand() % 0xffff;
   const uint16_t brightness = 0xffff;
@@ -217,7 +197,7 @@ static bool lights_to_random_color(hue_stream_message_data *frame,
 }
 
 static bool lights_to_random_colors(hue_stream_message_data *frame,
-                                   int channel_count, int start) {
+                                    int channel_count, int start) {
   for (int i = start; i < channel_count; i++) {
     frame[i].color_value[0] = rand() % 0xffff;
     frame[i].color_value[1] = rand() % 0xffff;
@@ -228,8 +208,8 @@ static bool lights_to_random_colors(hue_stream_message_data *frame,
 
 #define ACROSS_LIGHTS_CHANGE_INTERVAL_SECONDS 0.25
 
-static void animate_random_across(hue_stream_message_data *frame, int channel_count,
-                           double progress) {
+static void animate_random_across(hue_stream_message_data *frame,
+                                  int channel_count, double progress) {
   (void)progress;
 
   if (channel_count == 0) {
@@ -248,75 +228,50 @@ static void animate_random_across(hue_stream_message_data *frame, int channel_co
       }
     }
   } else {
-      if (rand() % 2 == 0) {
-        lights_to_random_color(frame, channel_count, 0);
-      } else {
-        lights_to_random_colors(frame, channel_count, 0);
-      }
+    if (rand() % 2 == 0) {
+      lights_to_random_color(frame, channel_count, 0);
+    } else {
+      lights_to_random_colors(frame, channel_count, 0);
+    }
   }
 }
 
 static void animate_black(hue_stream_message_data *frame, int channel_count,
-                           double progress) {
+                          double progress) {
   (void)progress;
   for (int i = 0; i < channel_count; i++) {
     light_turn_off(frame, channel_count, i);
   }
 }
 
-animation_status
-animation_spider_man_across_the_spider_verse(hue_stream_message_data *frame,
-                                           int channel_count,
-                                           const struct timespec *start_time) {
-    const animation_phase phases[] = {
-        {0.000, animate_hold},
-        {8.718, animate_random_across},
-        {9.260, animate_black},
-        {9.510, animate_random_across},
-        {9.885, animate_black},
-        {11.053, animate_random_across},
-        {13.264, animate_black},
-        {13.472, animate_random_across},
-        {17.017, animate_black},
-        {17.852, animate_random_across},
-        {17.935, animate_black},
-        {18.436, animate_random_across},
-        {18.686, animate_black},
-        {19.145, animate_random_across},
-        {19.478, animate_black},
-        {20.229, animate_random_across},
-        {20.813, animate_black},
-        {21.272, animate_random_across},
-        {22.398, animate_black},
-        {22.481, animate_random_across},
-        {22.898, animate_black},
-        {24.483, animate_random_across},
-        {25.651, animate_black},
-        {26.986, animate_random_across},
-        {35.995, animate_black},
-        {37.788, animate_random_across},
-        {38.706, animate_black},
-        {38.748, animate_random_across},
-        {43.169, animate_black},
-        {43.461, animate_random_across},
-        {43.502, animate_black},
-        {44.837, animate_random_across},
-        {46.505, animate_black},
-        {47.173, animate_random_across},
-        {53.763, animate_black},
-        {54.096, animate_random_across},
-        {54.638, animate_black},
-        {54.889, animate_random_across},
-        {56.140, animate_black},
-        {56.265, animate_random_across},
-        {56.599, animate_black},
-        {56.807, animate_random_across},
-        {57.641, animate_black},
-        {58.642, animate_random_across},
-        {58.893, animate_black},
-        {59.185, animate_random_across},
-        {61.228, animate_hold}
-    };
+animation_status animation_spider_man_across_the_spider_verse(
+    hue_stream_message_data *frame, int channel_count,
+    const struct timespec *start_time) {
+  const animation_phase phases[] = {
+      {0.000, animate_hold},   {8.718, animate_random_across},
+      {9.260, animate_black},  {9.510, animate_random_across},
+      {9.885, animate_black},  {11.053, animate_random_across},
+      {13.264, animate_black}, {13.472, animate_random_across},
+      {17.017, animate_black}, {17.852, animate_random_across},
+      {17.935, animate_black}, {18.436, animate_random_across},
+      {18.686, animate_black}, {19.145, animate_random_across},
+      {19.478, animate_black}, {20.229, animate_random_across},
+      {20.813, animate_black}, {21.272, animate_random_across},
+      {22.398, animate_black}, {22.481, animate_random_across},
+      {22.898, animate_black}, {24.483, animate_random_across},
+      {25.651, animate_black}, {26.986, animate_random_across},
+      {35.995, animate_black}, {37.788, animate_random_across},
+      {38.706, animate_black}, {38.748, animate_random_across},
+      {43.169, animate_black}, {43.461, animate_random_across},
+      {43.502, animate_black}, {44.837, animate_random_across},
+      {46.505, animate_black}, {47.173, animate_random_across},
+      {53.763, animate_black}, {54.096, animate_random_across},
+      {54.638, animate_black}, {54.889, animate_random_across},
+      {56.140, animate_black}, {56.265, animate_random_across},
+      {56.599, animate_black}, {56.807, animate_random_across},
+      {57.641, animate_black}, {58.642, animate_random_across},
+      {58.893, animate_black}, {59.185, animate_random_across},
+      {61.228, animate_hold}};
 
   const int num_phases = sizeof(phases) / sizeof(phases[0]);
   return animate(frame, channel_count, start_time, phases, num_phases);
