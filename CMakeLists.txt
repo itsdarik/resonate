@@ -23,10 +23,10 @@ target_compile_options(resonate PRIVATE
     -Werror
 )
 
-target_include_directories(resonate PRIVATE "/usr/include/mbedtls")
+target_include_directories(resonate PRIVATE "/opt/homebrew/Cellar/mbedtls/3.6.2/include")
 target_link_libraries(resonate PRIVATE
-    "/usr/lib/x86_64-linux-gnu/libmbedtls.so"
-    "/usr/lib/x86_64-linux-gnu/libmbedcrypto.so"
+    "/opt/homebrew/Cellar/mbedtls/3.6.2/lib/libmbedtls.dylib"
+    "/opt/homebrew/Cellar/mbedtls/3.6.2/lib/libmbedcrypto.dylib"
 )
 
 find_package(CURL REQUIRED)
