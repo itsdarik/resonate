@@ -27,6 +27,20 @@ the environment variables in `~/.bashrc` or `~/.zprofile`.
 * The PSK identity used to setup the DTLS connection.
 * The `HUE_APPLICATION_ID` environment variable.
 
+### Getting new credentials
+
+1. Revoke access for any old apps on the Philips Hue website.
+
+2. Find the Hue Bridge IP address in the app.
+
+3. `POST` the following to `https://<Hue bridge IP address>/api`:
+
+   ```json
+   { "devicetype": "Resonate#MacBook", "generateclientkey": true }
+   ```
+
+4. `GET` `https://<Hue bridge IP address>/auth/v1`.
+
 ## Build
 
 ```
