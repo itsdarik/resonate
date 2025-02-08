@@ -6,7 +6,7 @@ must manually start Resonate at the same time as the video.
 ## Credentials
 
 The following credentials are required to use the Philips Hue Entertainment API.  Export
-the environment variables in `~/.bashrc`.
+the environment variables in `~/.bashrc` or `~/.zprofile`.
 
 ### Username
 
